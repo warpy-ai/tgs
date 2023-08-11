@@ -6,19 +6,28 @@ on:
       - main
 
 jobs:
-  test_coverage:
-    permissions:
-      checks: write
-      pull-requests: write
-      contents: write
+  rust_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: ArtiomTr/jest-coverage-report-action@v2
-        id: coverage
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          output: report-markdown
-      - uses: marocchino/sticky-pull-request-comment@v2
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Run Rust tests
+        uses: actions-rs/cargo@v1
         with:
-          message: ${{ steps.coverage.outputs.report }}
+          command: test
+
+      # Optional: If you want to generate and post a coverage report
+      - name: Generate coverage report
+        uses: actions-rs/grcov@v0.1
+      - name: Post coverage report
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: ./target/debug/coverage/lcov.info
