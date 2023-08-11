@@ -106,3 +106,10 @@ dist
 *.txt
 *.jsonl
 .yarn
+
+
+
+# Rust related ignores
+tgs/target/
+**/*.rs.bk
+Cargo.lock
