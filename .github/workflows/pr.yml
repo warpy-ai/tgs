@@ -16,7 +16,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: stable
+          toolchain: nightly
           override: true
 
       - name: Run Rust tests
@@ -24,10 +24,7 @@ jobs:
         with:
           command: test
 
-      # Optional: If you want to generate and post a coverage report
-      - name: Generate coverage report
-        uses: actions-rs/grcov@v0.1
-      - name: Post coverage report
-        uses: marocchino/sticky-pull-request-comment@v2
+      - name: Run Clean
+        uses: actions-rs/cargo@v1
         with:
-          path: ./target/debug/coverage/lcov.info
+          command: clean
