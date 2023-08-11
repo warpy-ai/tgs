@@ -12,9 +12,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Change to Rust directory
-        run: cd tgs
-
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
