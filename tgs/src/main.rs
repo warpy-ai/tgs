@@ -1,43 +1,25 @@
-use std::io::{self, Read, Write};
-use std::process::{Command, Stdio};
+use std::io::{self, Write};
+mod shell;
 
 fn main() {
-    // Spawn Zsh as a subprocess
-    let mut child = Command::new("zsh")
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("Failed to start Zsh subprocess");
-
     loop {
         // 1. Print a prompt.
         print!("tgs> ");
         io::stdout().flush().unwrap(); // Ensure the prompt is displayed immediately.
 
         // 2. Read a line of input.
-        let mut input = String::new();
+        let mut input: String = String::new();
         io::stdin().read_line(&mut input).unwrap();
 
-        // 3. Send the input to Zsh for execution.
-        child
-            .stdin
-            .as_mut()
-            .unwrap()
-            .write_all(input.as_bytes())
-            .unwrap();
+        // 3. Process the input using Zsh.
+        let (code, output, error) = shell::execute("zsh", &input);
 
-        // 4. Capture the output from Zsh.
-        let mut output = Vec::new();
-        child
-            .stdout
-            .as_mut()
-            .unwrap()
-            .read_to_end(&mut output)
-            .unwrap();
-        let output_str = String::from_utf8_lossy(&output);
-
-        // 5. Display the output.
-        println!("{}", output_str);
+        // 4. Display the output or error.
+        if code == 0 {
+            println!("{}", output);
+        } else {
+            eprintln!("Error: {}", error);
+        }
     }
 }
 

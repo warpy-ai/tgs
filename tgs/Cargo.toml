@@ -7,3 +7,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+colored = "2.0.0"
+rand = "0.8.5"
+chrono = "0.4.19"
+clap = "4.3.21"
+regex = "1.5.5"
+term = "0.7.0"
