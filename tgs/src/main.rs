@@ -1,7 +1,9 @@
 use std::io::{self, Write};
-mod shell;
+use tgs_shell;
 
 fn main() {
+    let raw_vars: Vec<String> = std::env::args().collect::<Vec<String>>();
+
     loop {
         // 1. Print a prompt.
         print!("tgs> ");
@@ -11,8 +13,10 @@ fn main() {
         let mut input: String = String::new();
         io::stdin().read_line(&mut input).unwrap();
 
+        // process::run_process(&raw_vars, &input);
+
         // 3. Process the input using Zsh.
-        let (code, output, error) = shell::execute("zsh", &input);
+        let (code, output, error) = tgs_shell::execute("zsh", &input);
 
         // 4. Display the output or error.
         if code == 0 {
@@ -20,21 +24,5 @@ fn main() {
         } else {
             eprintln!("Error: {}", error);
         }
-    }
-}
-
-pub fn reverse_string(s: &str) -> String {
-    s.chars().rev().collect()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_reverse_string() {
-        assert_eq!(reverse_string("tgs"), "sgt");
-        assert_eq!(reverse_string("hello"), "olleh");
-        assert_eq!(reverse_string(""), "");
     }
 }

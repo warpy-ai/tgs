@@ -117,7 +117,7 @@ crates/*/target
 **/*.rs.bk
 history.txt
 tests/fixtures/nuplayground
-crates/*/target
+tgs/crates/*/target
 .mailmap
 
 # macOS junk
