@@ -1,7 +1,4 @@
-use std::{
-    io,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 pub fn find_binary(command: &str, path: &str) -> Result<PathBuf, std::io::Error> {
     fn search(command: &str, path: &Path) -> Result<(), std::io::Error> {
