@@ -22,6 +22,7 @@ fn main() {
         let value: Vec<&str> = input.split(" ").collect();
         let bin = tgs_handler::find_binary(value[0], &path);
 
+        println!("bin: {:?}", bin);
         // 5. Execute the command using tgs_shell
         match bin {
             Ok(bin) => {
