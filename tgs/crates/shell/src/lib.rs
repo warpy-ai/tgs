@@ -1,20 +1,23 @@
-pub fn execute(shell: &str, cmd: &String) -> (i32, String, String) {
-    let mut command = {
-        let mut command = ::std::process::Command::new(shell);
-        command.arg("-c").arg(cmd);
-        command
-    };
+use std::io;
+use std::process::{Command, ExitStatus};
 
-    match command.output() {
-        Ok(output) => (
-            output
-                .status
-                .code()
-                .unwrap_or(if output.status.success() { 0 } else { 1 }),
-            String::from_utf8_lossy(&output.stdout[..]).into_owned(),
-            String::from_utf8_lossy(&output.stderr[..]).into_owned(),
-        ),
+#[cfg(unix)]
+use std::os::unix::process::ExitStatusExt;
 
-        Err(e) => (126, String::new(), e.to_string()),
+pub fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> {
+    // Handle built-in commands
+    match bin {
+        "cd" => {
+            let new_dir = args.get(0).map_or("/", |x| *x);
+            std::env::set_current_dir(new_dir)?;
+            Ok(ExitStatus::from_raw(0)) // Return a successful exit status
+        }
+        _ => {
+            // Execute the command
+            let mut command = Command::new(bin);
+            command.args(args);
+            let mut child = command.spawn()?;
+            child.wait()
+        }
     }
 }
