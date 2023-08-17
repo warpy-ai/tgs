@@ -6,7 +6,21 @@ use std::os::unix::process::ExitStatusExt;
 
 pub fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> {
     // Handle built-in commands
-    match bin {
+    let command_name = std::path::Path::new(bin)
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap();
+    match command_name {
+        "cd" => {
+            let new_dir = args.get(0).map_or(".", |x| *x); // Default to the current directory if no argument is provided
+            std::env::set_current_dir(new_dir)?;
+            Ok(ExitStatus::from_raw(0)) // Return a successful exit status
+        }
+        "echo" => {
+            println!("{}", args.join(" "));
+            Ok(ExitStatus::from_raw(0))
+        }
         _ => {
             // Execute the command
             let mut command = {
