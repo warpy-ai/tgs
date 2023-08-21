@@ -22,7 +22,6 @@ fn main() {
         let value: Vec<&str> = input.split(" ").collect();
         let bin = tgs_handler::find_binary(value[0], &path);
 
-        println!("bin: {:?}", bin);
         // 5. Execute the command using tgs_shell
         match bin {
             Ok(bin) => {
@@ -42,5 +41,39 @@ fn main() {
                 eprintln!("Error: {}", e);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use duct::cmd;
+
+    #[test]
+    fn test_tgs_shell_echo() {
+        // Simulate user input "echo Hello, world!" and "exit"
+        let input = "echo Hello, world!\nexit\n";
+        let output = cmd!("cargo", "run")
+            .stdin_bytes(input)
+            .read()
+            .expect("Failed to run tgs_shell with input");
+
+        // Print the actual output for debugging
+        println!("Actual output: {}", output);
+
+        // Check that the output contains the expected prompt and output
+        assert!(output.contains("tgs> Hello, world!"));
+    }
+
+    #[test]
+    fn test_tgs_shell_exit() {
+        // Simulate user input "exit"
+        let input = "exit\n";
+        let output = cmd!("cargo", "run")
+            .stdin_bytes(input)
+            .read()
+            .expect("Failed to run tgs_shell with input");
+
+        // Check that the output contains the expected prompt
+        assert!(output.contains("tgs> "));
     }
 }
