@@ -1,0 +1,12 @@
+[package]
+authors = ["The TGHandler Project"]
+description = "Path handler functionality"
+repository = "https://github.com/warpy-ai/tgs/tgs/crates/shell"
+edition = "2021"
+license = "MIT"
+name = "tgs_handler"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
