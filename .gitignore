@@ -113,3 +113,21 @@ dist
 tgs/target/
 **/*.rs.bk
 Cargo.lock
+crates/*/target
+**/*.rs.bk
+history.txt
+tests/fixtures/nuplayground
+tgs/crates/*/target
+.mailmap
+
+# macOS junk
+.DS_Store
+
+# JetBrains' IDE items
+.idea/*
+
+# VSCode's IDE items
+.vscode/*
+
+# JetBrains' Fleet IDE
+.fleet/*
