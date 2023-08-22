@@ -24,6 +24,9 @@ jobs:
           toolchain: nightly
           override: true
 
+      - name: List project
+        run: ls -a
+
       - name: Run Rust tests
         run: cargo test --all
 
