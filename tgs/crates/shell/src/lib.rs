@@ -8,9 +8,12 @@ pub fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> {
     // Handle built-in commands
     let command_name = std::path::Path::new(bin)
         .file_name()
-        .unwrap()
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Invalid binary path"))?
         .to_str()
-        .unwrap();
+        .ok_or_else(|| {
+            io::Error::new(io::ErrorKind::InvalidData, "Invalid UTF-8 in binary path")
+        })?;
+
     match command_name {
         "cd" => {
             let new_dir = args.get(0).map_or(".", |x| *x); // Default to the current directory if no argument is provided
