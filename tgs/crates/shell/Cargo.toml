@@ -6,3 +6,7 @@ edition = "2021"
 license = "MIT"
 name = "tgs_shell"
 version = "0.0.1"
+
+[[test]]
+name = "test"
+path = "tests/test.rs"
