@@ -5,12 +5,14 @@ on:
     branches:
       - main
 
+defaults:
+  run:
+    working-directory: ./tgs
+
 jobs:
   rust_test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./tgs
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
