@@ -1,9 +1,17 @@
 [package]
+authors = ["The TGS Bridge Project"]
+description = "Path handler functionality"
+repository = "https://github.com/warpy-ai/tgs/tgs/crates/tgs_bridge"
+edition = "2021"
+license = "MIT"
 name = "tgs_bridge"
 version = "0.1.0"
-edition = "2021"
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "tgs_bridge"
+crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.19.2", features = ["extension-module"] }
+pyo3 = "0.19.0"
