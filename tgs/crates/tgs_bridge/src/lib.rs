@@ -1,26 +1,26 @@
-// src/lib.rs
 use pyo3::prelude::*;
-use pyo3::types::PyTuple;
+use pyo3::types::IntoPyDict;
 
 pub fn interpret_command(command: &str) -> PyResult<String> {
     Python::with_gil(|py| {
-        let nlp_module = PyModule::from_code(
-            py,
-            r#"
-import spacy
+        // Include the Python code from example.py
+        let py_code = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/example.py"));
 
-nlp = spacy.load("en_core_web_sm")
+        // Create a new Python module
+        let nlp_module = PyModule::new(py, "nlp_module")?;
 
-def interpret_command(command):
-    # Your NLP logic here
-    return command  # For now, just return the original command
-"#,
-            "nlp_handler.py",
-            "nlp_handler",
-        )?;
+        // Execute the Python code in the context of the new module
+        py.run(py_code, Some(nlp_module.dict()), None)?;
 
-        let args = PyTuple::new(py, &[command]);
-        let interpreted_command: String = nlp_module.call1(args)?.extract()?;
+        // Get the Python function
+        let py_function = nlp_module.getattr("interpret_command")?;
+
+        // Prepare arguments for Python function call
+        let args = (command,);
+
+        // Call Python function and extract result
+        let interpreted_command: String = py_function.call1(args)?.extract()?;
+
         Ok(interpreted_command)
     })
 }
