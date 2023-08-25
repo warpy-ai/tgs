@@ -1,10 +1,13 @@
 use pyo3::prelude::*;
-
+use pyo3::types::PyTuple;
 
 pub fn interpret_command(command: &str) -> PyResult<String> {
     Python::with_gil(|py| {
         // Include the Python code from example.py
-        let py_code = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/example.py"));
+        let py_code = include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/modules/example.py"
+        ));
 
         // Create a new Python module
         let nlp_module = PyModule::new(py, "nlp_module")?;
