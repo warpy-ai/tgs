@@ -3,18 +3,18 @@ name = "tgs_bridge"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[lib]
-name = "testproj"
-crate-type = ["cdylib"]
-
 [dependencies]
 libc = "0.2"
-pyo3 = { version = "0.19.2", features = ["auto-initialize"] }
 numpy = "0.19"
-
+pyo3 = { version = "0.19.2", default-features = false }
 
 [dev-dependencies]
 pyo3 = { version = "0.19.2", default-features = false, features = [
     "auto-initialize",
+    "macros",
 ] }
+
+
+[features]
+extension-module = ["pyo3/extension-module"]
+default = ["extension-module"]
