@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
-use pyo3::types::PyTuple;
 
+#[pyfunction]
 pub fn interpret_command(command: &str) -> PyResult<String> {
     Python::with_gil(|py| {
         // Include the Python code from example.py
