@@ -27,3 +27,23 @@ pub fn interpret_command(command: &str) -> PyResult<String> {
         Ok(interpreted_command)
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_interpret_command() {
+        let command = "Hello, world!";
+        let result = interpret_command(command);
+        match result {
+            Ok(interpreted_command) => {
+                // For now, the Python function just returns the original command
+                assert_eq!(interpreted_command, command);
+            }
+            Err(e) => {
+                panic!("Test failed: {:?}", e);
+            }
+        }
+    }
+}
