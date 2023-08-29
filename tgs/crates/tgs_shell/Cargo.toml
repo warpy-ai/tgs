@@ -1,7 +1,7 @@
 [package]
 authors = ["The TGShel Project"]
 description = "Shell functionality"
-repository = "https://github.com/warpy-ai/tgs/tgs/crates/shell"
+repository = "https://github.com/warpy-ai/tgs/tgs/crates/tgs_shell"
 edition = "2021"
 license = "MIT"
 name = "tgs_shell"
