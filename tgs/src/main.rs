@@ -1,5 +1,4 @@
 use std::io::{self, Write};
-use tgs_bridge;
 use tgs_handler;
 use tgs_shell;
 fn main() {
@@ -13,22 +12,6 @@ fn main() {
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
         let input = input.trim(); // Trim whitespace
-
-        match tgs_bridge::interpret_command(input) {
-            Ok(interpreted_command) => {
-                // Use interpreted_command for further processing
-                println!("Interpreted Command: {}", interpreted_command);
-            }
-            Err(e) => {
-                eprintln!("NLP Interpretation Error: {}", e);
-                continue; // Skip the rest of the loop iteration
-            }
-        }
-
-        // 3. Exit the shell if the user types "exit".
-        if input == "exit" {
-            break;
-        }
 
         // 4. Execute the command using tgs_handler.
         let value: Vec<&str> = input.split(" ").collect();

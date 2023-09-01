@@ -10,7 +10,6 @@ edition = "2021"
 [dependencies]
 tgs_shell = { path = 'crates/tgs_shell' }
 tgs_handler = { path = 'crates/tgs_handler' }
-tgs_bridge = { path = 'crates/tgs_bridge' }
 colored = "2.0.0"
 rand = "0.8.5"
 chrono = "0.4.19"
