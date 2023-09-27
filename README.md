@@ -54,6 +54,13 @@ We welcome contributions! Please see our [CONTRIBUTING.md](path_to_contributing.
 
 TGS is licensed under the [MIT License](path_to_license.md).
 
+## Research references
+
+- [Translating Natural Language to Bash Commands using Deep Neural Networks](https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1224/reports/custom_116997097.pdf)
+- [NL2CMD: An Updated Workflow for Natural Language to Bash Commands Translation](https://arxiv.org/pdf/2302.07845.pdf)
+- [Dataset](https://github.com/magnumresearchgroup/magnum-nlc2cmd)
+- [End-to-end NLP Pipelines in Rust](https://aclanthology.org/2020.nlposs-1.4.pdf)
+
 ---
 
 Feel free to customize the README further to match the specific features, installation steps, and other details of your project. Remember to replace placeholders (like `<repository_link>`, `path_to_logo.png`, etc.) with actual links or paths as needed.
