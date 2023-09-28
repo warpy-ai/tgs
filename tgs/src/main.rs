@@ -1,6 +1,8 @@
 use std::io::{self, Write};
 use tgs_handler;
 use tgs_shell;
+use tgs_t5_finetunned;
+
 fn main() {
     let path = std::env::var("PATH").unwrap();
     loop {
@@ -33,7 +35,34 @@ fn main() {
                 }
             }
             Err(e) => {
-                eprintln!("Error: {}", e);
+                // If we didn't find the command, let's see if tgs_t5_finetunned can infer one
+                match tgs_t5_finetunned::return_command(value[0]) {
+                    Ok(inferred_cmd) => {
+                        // Now, you'd need to split the inferred command into the binary and arguments
+                        // For simplicity, let's assume the inferred command is just a binary name, similar to your initial input
+                        // (You might need to modify this to handle complex commands)
+                        let inferred_bin = tgs_handler::find_binary(&inferred_cmd, &path);
+                        println!("Inferred command: {}", inferred_cmd);
+                        match inferred_bin {
+                            Ok(inferred_bin_path) => {
+                                let bin_str = inferred_bin_path.to_str().unwrap();
+                                match tgs_shell::execute(bin_str, &value[1..]) {
+                                    Ok(exit_status) => {
+                                        if !exit_status.success() {
+                                            eprintln!(
+                                                "Command exited with status: {}",
+                                                exit_status
+                                            );
+                                        }
+                                    }
+                                    Err(err) => eprintln!("Error: {}", err),
+                                }
+                            }
+                            Err(err) => eprintln!("Error after inference: {}", err),
+                        }
+                    }
+                    Err(err) => eprintln!("Inference error: {}", err),
+                }
             }
         }
     }
