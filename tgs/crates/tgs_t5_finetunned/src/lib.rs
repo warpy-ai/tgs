@@ -86,6 +86,8 @@ pub fn return_command(input_text: &str) -> Result<String> {
     let output_ids = output.argmax(-1, false).view([-1]);
     let output_vec: Vec<i64> = output_ids.iter::<i64>().unwrap().collect();
 
+    println!("output_vec: {:?}", output_vec);
+
     // Decode the predictions
     println!("9. Decoding predictions...");
     let decoded_output = tokenizer.decode(&output_vec[..], true, true);
