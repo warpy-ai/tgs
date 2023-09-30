@@ -46,31 +46,45 @@ pub fn return_command(input_text: &str) -> Result<String> {
     // Mock input for now
     println!("5. Tokenizing input...");
     let tokens = tokenizer.encode(input_text, None, 512, &TruncationStrategy::DoNotTruncate, 0);
+    println!("Tokens: {:?}", tokens);
 
     // Convert TokenizedInput to Tensor
-    let input_tensor = tokens.token_ids.as_slice().into();
+    let input_tensor: tch::Tensor = tokens.token_ids.as_slice().into();
+
+    println!("Number of tokens: {}", tokens.token_ids.len());
     println!("6. Tokens: {}", input_tensor);
+
+    let input_tensor = input_tensor.unsqueeze(0); // adds a batch dimension
+    println!("Input tensor: {}", input_tensor);
+    //   println!("Input tensor shape: {:?}", input_tensor.size::<i32>());
 
     // Inference using forward_t with all required arguments
     println!("7. Running inference...");
+
+    // let decoder_input =
+    //    tch::Tensor::of_slice(&[tokenizer.bos_token_id().unwrap(); 512]).unsqueeze(0);
+
+    let decoded_tokens = tokenizer.decode(&tokens.token_ids, true, true);
+    println!("Decoded tokens: {}", decoded_tokens);
+
     let model_output = t5_model.forward_t(
         Some(&input_tensor),
-        None,  // attention_mask
-        None,  // encoder_output
-        None,  // decoder_input
-        None,  // position_ids
-        None,  // encoder_attention_mask
-        None,  // past_key_values
-        None,  // use_cache
-        false, // train
+        None,                // attention_mask
+        None,                // encoder_output
+        Some(&input_tensor), // decoder_input
+        None,                // position_ids
+        None,                // encoder_attention_mask
+        None,                // past_key_values
+        None,                // use_cache
+        false,               // train
     );
 
     // Extract the logits from the model output
     let output = model_output.decoder_output;
 
     println!("8. Converting tensor to Vec<i64>...");
-    // Convert the Tensor to a Vec<i64>
-    let output_vec: Vec<i64> = output.iter::<i64>().unwrap().collect();
+    let output_ids = output.argmax(-1, false).view([-1]);
+    let output_vec: Vec<i64> = output_ids.iter::<i64>().unwrap().collect();
 
     // Decode the predictions
     println!("9. Decoding predictions...");
