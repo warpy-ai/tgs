@@ -63,6 +63,7 @@ fn main() {
                     }
                     Err(err) => eprintln!("Inference error: {}", err),
                 }
+                eprintln!("Error {}", e)
             }
         }
     }
