@@ -76,6 +76,7 @@ mod tests {
     #[test]
     fn test_tgs_shell_echo() {
         // Simulate user input "echo Hello, world!" and "exit"
+        println!("Should echo Hello, world!");
         let input = "echo Hello, world!\nexit\n";
         let output = cmd!("cargo", "run")
             .stdin_bytes(input)
@@ -92,6 +93,7 @@ mod tests {
     #[test]
     fn test_tgs_shell_exit() {
         // Simulate user input "exit"
+        println!("Should exit with status 200");
         let input = "exit\n";
         let output = cmd!("cargo", "run")
             .stdin_bytes(input)

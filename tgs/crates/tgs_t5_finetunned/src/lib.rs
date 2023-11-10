@@ -44,7 +44,7 @@ pub fn return_command(input_text: &str) -> Result<String> {
     vs.load(weights_path)?;
 
     // Mock input for now
-    println!("5. Tokenizing input...");
+    println!("5. Tokenizing input... {:?}", input_text);
     let tokens = tokenizer.encode(input_text, None, 512, &TruncationStrategy::DoNotTruncate, 0);
     println!("Tokens: {:?}", tokens);
 

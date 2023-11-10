@@ -3,6 +3,7 @@
   "architectures": [
     "T5ForConditionalGeneration"
   ],
+  "classifier_dropout": 0.0,
   "d_ff": 2048,
   "d_kv": 64,
   "d_model": 512,
@@ -54,7 +55,7 @@
     }
   },
   "torch_dtype": "float32",
-  "transformers_version": "4.27.0.dev0",
+  "transformers_version": "4.32.1",
   "use_cache": true,
   "vocab_size": 32128
 }
