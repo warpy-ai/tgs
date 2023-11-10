@@ -25,7 +25,7 @@ pub fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> {
             Ok(ExitStatus::from_raw(0))
         }
         "exit" => {
-            Ok(ExitStatus::from_raw(200)) // Using 200 as a special code for exit
+            Ok(ExitStatus::from_raw(0)) // Using 200 as a special code for exit
         }
         _ => {
             // Execute the command
