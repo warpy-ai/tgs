@@ -22,7 +22,7 @@ pub fn return_command(input_text: &str) -> Result<String> {
         local_path: PathBuf::from(spiece_path),
     };
 
-    let weights_path = root_path.join("model/pytorch_model.bin");
+    let weights_path = root_path.join("model/pytorch_model.ot");
     let weights_resource = LocalResource {
         local_path: PathBuf::from(weights_path),
     };
