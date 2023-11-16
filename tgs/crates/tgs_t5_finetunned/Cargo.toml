@@ -5,6 +5,21 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "tgs_t5_finetunned"
+path = "src/lib.rs"
+crate-type = ["lib"]
+
+[[bin]]
+name = "convert-tensor"
+path = "src/convert-tensor.rs"
+doc = false
+
+[[bin]]
+name = "main-executable" # You can choose a different name
+path = "src/main.rs"
+doc = false
+
 [dependencies]
 rust-bert = "0.21.0"      # Check for the latest version
 tch = "0.13"              # Torch library for Rust

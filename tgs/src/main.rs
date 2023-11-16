@@ -17,6 +17,7 @@ fn main() {
 
         // 4. Execute the command using tgs_handler.
         let value: Vec<&str> = input.split(" ").collect();
+
         let bin = tgs_handler::find_binary(value[0], &path);
 
         // 5. Execute the command using tgs_shell
@@ -36,7 +37,8 @@ fn main() {
             }
             Err(e) => {
                 // If we didn't find the command, let's see if tgs_t5_finetunned can infer one
-                match tgs_t5_finetunned::return_command(value[0]) {
+                let command_str = value.join(" ");
+                match tgs_t5_finetunned::return_command(&command_str) {
                     Ok(inferred_cmd) => {
                         // Now, you'd need to split the inferred command into the binary and arguments
                         // For simplicity, let's assume the inferred command is just a binary name, similar to your initial input
