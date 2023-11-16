@@ -1,0 +1,13 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./tgs/Cargo.toml",
+        "./tgs/Cargo.toml",
+        "./tgs/Cargo.toml",
+        "./tgs/Cargo.toml"
+    ],
+    "rust-analyzer.showUnlinkedFileNotification": false,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8"
+    },
+    "python.formatting.provider": "none"
+}

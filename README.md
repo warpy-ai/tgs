@@ -1,108 +1,80 @@
-<p align="center">
-  <img width="200" alt="TerminalGPT logo" src="https://user-images.githubusercontent.com/11979969/211214696-7519a871-4981-44a8-8c2d-a1d187839126.png"/>
-</p>
+# TGS (TerminalGPT Shell)
 
-<p align="center">
-   <img width="80" alt="TerminalGPT logo" src="https://img.shields.io/github/actions/workflow/status/jucasoliveira/terminalGPT/pr.yml"/>
-   <img width="100" alt="TerminalGPT logo" src="https://img.shields.io/npm/dt/terminalgpt"/>
-   <img width="100" alt="TerminalGPT logo" src="https://img.shields.io/github/contributors/jucasoliveira/terminalGPT"/>
-   <img width="100" alt="TerminalGPT logo" src="https://img.shields.io/github/package-json/v/jucasoliveira/terminalGPT"/>
+![TGS Logo](path_to_logo.png) <!-- If you have a logo, you can link it here -->
 
-</p>
+TGS is a revolutionary conversational shell that combines the power of Rust with the intelligence of GPT-based natural language processing. Designed as a spinoff of the TerminalGPT project, TGS aims to redefine the way users interact with their terminals.
 
-<p align="center">
-Get GPT-like chatGPT on your terminal
-</p>
+## Features
 
-![Screenshot 2023-01-05 at 09 24 10](https://user-images.githubusercontent.com/11979969/210746185-69722c94-b073-4863-82bc-b662236c8305.png)
+- **Conversational Interface**: Interact with your terminal in natural language. Instead of remembering complex commands, just tell TGS what you want to do.
+- **Rust Integration**: Built with the robustness and efficiency of Rust, ensuring a fast and reliable terminal experience.
+- **Intelligent Suggestions**: TGS provides smart suggestions and corrections, making your terminal experience smoother and more intuitive.
+- **Safety Measures**: TGS has built-in safety checks to prevent accidental execution of potentially harmful commands.
 
-<p align="center">
-<a href="https://www.producthunt.com/posts/terminalgpt?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-terminalgpt" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=373888&theme=light" alt="terminalGPT - Use&#0032;OpenAi&#0032;like&#0032;chatGPT&#0044;&#0032;on&#0032;your&#0032;terminal | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-
-</p>
-
-## Prerequisites
-
-You'll need to have your own `OpenAi` apikey to operate this package.
-
-1. Go to <https://platform.openai.com>
-2. Select your profile menu and go to `View API Keys`
-3. Select `+ Create new secret key`
-4. Copy generated key
-
-# Installation
-
-Install terminalGPT globally:
+## Installation
 
 ```bash
-npm -g install terminalgpt
+# Placeholder for installation commands
+git clone <repository_link>
+cd tgs
+./install.sh
 ```
 
-or
+## Usage
+
+Start TGS with the following command:
 
 ```bash
-yarn global add terminalgpt
+tgs
 ```
 
-## Start chat
+Once inside TGS, you can start conversing with your terminal:
+
+```
+tgs> Create a new directory called "projects"
+Directory "projects" created.
+
+tgs> List all files in the current directory
+...output...
+```
+
+## Testing
+
+To run the unit tests for TGS:
 
 ```bash
-tgpt chat
+cargo test
 ```
-
-PS: If it is your first time running it, it will ask for open AI key, **paste generated key from pre-requisite steps**.
-
-## Options
-
-### Change engine and temperature
-
-```bash
-tgpt chat --engine "gpt-4" --temperature 0.7
-```
-
-Note this library uses [Chat Completions API](https://platform.openai.com/docs/api-reference/chat).
-The `engine` parameter is the same as the `model` parameter in the API. The default value is `gpt-3.5-turbo`.
-
-### Use markdown
-
-```bash
-tgpt chat --markdown
-```
-
-## Change or delete api key
-
-It you are not satisfied or added a wrong api key, run
-
-```bash
-tgpt delete
-```
-
-## Using with npx
-
-```bash
-npx terminalgpt
-```
-
-```bash
-npx terminalgpt <command>
-```
-
-Note `npx terminalgpt` doesn't install the terminalgpt package, instead it downloads the package to your computer and directly executes it from the cache.
-
-You can find the package using
-
-`ls ~/.npm/_npx/*/node_modules`
-
-To delete the package, you can use
-
-`rm -r ~/.npm/_npx/*/node_modules/terminalgpt`
 
 ## Contributing
 
-Refer to CONTRIBUTING.md 😎
+We welcome contributions! Please see our [CONTRIBUTING.md](path_to_contributing.md) for guidelines.
 
-## ✨ Contributors
+## License
 
-<a href="https://github.com/jucasoliveira/terminalGPT/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=jucasoliveira/terminalGPT" />
-</a>
+TGS is licensed under the [MIT License](path_to_license.md).
+
+## Research references
+
+- [Translating Natural Language to Bash Commands using Deep Neural Networks](https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1224/reports/custom_116997097.pdf)
+- [NL2CMD: An Updated Workflow for Natural Language to Bash Commands Translation](https://arxiv.org/pdf/2302.07845.pdf)
+- [Dataset](https://github.com/magnumresearchgroup/magnum-nlc2cmd)
+- [End-to-end NLP Pipelines in Rust](https://aclanthology.org/2020.nlposs-1.4.pdf)
+
+---
+
+Feel free to customize the README further to match the specific features, installation steps, and other details of your project. Remember to replace placeholders (like `<repository_link>`, `path_to_logo.png`, etc.) with actual links or paths as needed.
+
+## Citations
+
+```
+@inproceedings{becquin-2020-end,
+    title = "End-to-end {NLP} Pipelines in Rust",
+    author = "Becquin, Guillaume",
+    booktitle = "Proceedings of Second Workshop for NLP Open Source Software (NLP-OSS)",
+    year = "2020",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/2020.nlposs-1.4",
+    pages = "20--25",
+}
+```
