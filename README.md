@@ -1,4 +1,4 @@
-# TGS (TerminalGPT Shell)
+# TGS (Terminal Generative Shell)
 
 ![TGS Logo](https://github.com/warpy-ai/tgs/blob/main/tgshell_icon.svg) <!-- If you have a logo, you can link it here -->
 
