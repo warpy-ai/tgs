@@ -5,6 +5,8 @@ use tgs_t5_finetunned;
 
 fn main() {
     let path = std::env::var("PATH").unwrap();
+    tgs_welcome::display_welcome_message();
+
     loop {
         // 1. Print a prompt.
         print!("tgs> ");
