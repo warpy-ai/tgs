@@ -1,70 +1,82 @@
-// Necessary imports
 use anyhow::Result;
 use rust_bert::resources::{LocalResource, ResourceProvider};
 use rust_bert::t5::{T5Config, T5ForConditionalGeneration};
 use rust_bert::Config;
 use rust_tokenizers::tokenizer::{T5Tokenizer, Tokenizer, TruncationStrategy};
+use std::path::Path;
 use std::path::PathBuf;
-use tch::{nn, Device};
+use tch::{nn, no_grad, Device, Tensor};
 
-fn return_command(input_text: &str) -> Result<String> {
-    // Define the paths for the model's configuration, tokenizer, and weights
-    println!("Loading model...");
+fn load_model() -> Result<(T5ForConditionalGeneration, T5Tokenizer, nn::VarStore)> {
+    let root_path = Path::new(env!("CARGO_MANIFEST_DIR"));
+
+    let config_path = root_path.join("model/config.json");
     let config_resource = LocalResource {
-        local_path: PathBuf::from("model/config.json"),
+        local_path: PathBuf::from(config_path),
     };
+
+    let spiece_path = root_path.join("model/spiece.model");
     let sentence_piece_resource = LocalResource {
-        local_path: PathBuf::from("model/spiece.model"),
+        local_path: PathBuf::from(spiece_path),
     };
+
+    let weights_path = root_path.join("model/rust_model.ot");
     let weights_resource = LocalResource {
-        local_path: PathBuf::from("model/pytorch_model.bin"),
+        local_path: PathBuf::from(weights_path),
     };
 
     let config_path = config_resource.get_local_path()?;
     let spiece_path = sentence_piece_resource.get_local_path()?;
     let weights_path = weights_resource.get_local_path()?;
 
-    // Check for available CUDA device
     let device = Device::cuda_if_available();
     let mut vs = nn::VarStore::new(device);
 
     let config = T5Config::from_file(config_path);
-    let t5_model = T5ForConditionalGeneration::new(&vs.root(), &config);
+    let model = T5ForConditionalGeneration::new(&vs.root(), &config);
     let tokenizer = T5Tokenizer::from_file(spiece_path.to_str().unwrap(), false)?;
     vs.load(weights_path)?;
 
-    // Mock input for now
+    Ok((model, tokenizer, vs))
+}
+
+fn tokenize_input(tokenizer: &T5Tokenizer, input_text: &str) -> Tensor {
     let tokens = tokenizer.encode(input_text, None, 512, &TruncationStrategy::DoNotTruncate, 0);
+    let input_tensor = Tensor::from(tokens.token_ids.as_slice());
+    input_tensor.to_kind(tch::Kind::Int64).unsqueeze(0)
+}
 
-    // Convert TokenizedInput to Tensor
-    let input_tensor = tokens.token_ids.as_slice().into();
+fn run_inference(model: &T5ForConditionalGeneration, input_tensor: &Tensor) -> Tensor {
+    let model_output = no_grad(|| {
+        model.forward_t(
+            Some(input_tensor), // input ids
+            None,               // attention mask (optional)
+            None,               // encoder output (optional)
+            None,               // decoder input ids (optional)
+            None,               // decoder attention mask (optional)
+            None,               // input embeds (optional)
+            None,               // decoder input embeds (optional)
+            None,               // old layer states (optional)
+            false,              // train mode (false for inference)
+        )
+    });
+    model_output.decoder_output
+}
 
-    println!("Tokens: {}", input_tensor);
+fn decode_output(tokenizer: &T5Tokenizer, output_tensor: &Tensor) -> String {
+    let output_ids = output_tensor.argmax(-1, false).view([-1]);
+    let output_vec: Vec<i64> = output_ids.iter::<i64>().unwrap().collect();
+    tokenizer.decode(&output_vec[..], true, true)
+}
 
-    // Inference using forward_t with all required arguments
-    let model_output = t5_model.forward_t(
-        Some(&input_tensor),
-        None,  // attention_mask
-        None,  // encoder_output
-        None,  // decoder_input
-        None,  // position_ids
-        None,  // encoder_attention_mask
-        None,  // past_key_values
-        None,  // use_cache
-        false, // train
-    );
+pub fn return_command(input_text: &str) -> Result<String> {
+    let (model, tokenizer, _var_store) = load_model()?;
+    let input_tensor = tokenize_input(&tokenizer, input_text);
+    println!("Input tensor shape: {:?}", input_tensor.size());
+    println!("Input tensor content: {:?}", input_tensor);
 
-    // Extract the logits from the model output
-    let output = model_output.decoder_output;
-
-    // Convert the Tensor to a Vec<i64>
-    let output_vec: Vec<i64> = output.iter::<i64>().unwrap().collect();
-
-    // Decode the predictions
-    let decoded_output = tokenizer.decode(&output_vec[..], true, true);
-
-    // Print the decoded output
-    println!("Output: {}", decoded_output);
+    let output_tensor = run_inference(&model, &input_tensor);
+    let decoded_output = decode_output(&tokenizer, &output_tensor);
 
     Ok(decoded_output)
 }
