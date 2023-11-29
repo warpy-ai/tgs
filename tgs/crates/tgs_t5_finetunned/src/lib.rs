@@ -37,7 +37,7 @@ fn load_model() -> Result<(T5ForConditionalGeneration, T5Tokenizer, nn::VarStore
     let tokenizer = T5Tokenizer::from_file(spiece_path.to_str().unwrap(), false)?;
     vs.load(weights_path)?;
 
-    Ok((model, tokenizer, vs))``
+    Ok((model, tokenizer, vs))
 }
 
 fn tokenize_input(tokenizer: &T5Tokenizer, input_text: &str) -> Tensor {

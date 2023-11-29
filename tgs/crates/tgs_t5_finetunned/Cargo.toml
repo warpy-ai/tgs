@@ -22,7 +22,7 @@ doc = false
 
 [dependencies]
 rust-bert = "0.21.0"      # Check for the latest version
-tch = "0.13"              # Torch library for Rust
+tch = "0.13.0"            # Torch library for Rust
 rust_tokenizers = "8.1.0" # Use the version you need
 anyhow = "1.0"
 ndarray = "0.15.6"
