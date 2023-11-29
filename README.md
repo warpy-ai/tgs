@@ -50,6 +50,60 @@ cargo test
 
 We welcome contributions! Please see our [CONTRIBUTING.md](path_to_contributing.md) for guidelines.
 
+## Working with the probject
+
+This library relies on the [tch](https://github.com/LaurentMazare/tch-rs) crate for bindings to the C++ Libtorch API.
+The libtorch library is required can be downloaded either automatically or manually. The following provides a reference on how to set-up your environment
+to use these bindings, please refer to the [tch](https://github.com/LaurentMazare/tch-rs) for detailed information or support.
+
+Furthermore, this library relies on a cache folder for downloading pre-trained models.
+This cache location defaults to `~/.cache/.rustbert`, but can be changed by setting the `RUSTBERT_CACHE` environment variable. Note that the language models used by this library are in the order of the 100s of MBs to GBs.
+
+### Manual installation (recommended)
+
+1. Download `libtorch` from https://pytorch.org/get-started/locally/. This package requires `v2.1`: if this version is no longer available on the "get started" page,
+   the file should be accessible by modifying the target link, for example `https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcu118.zip` for a Linux version with CUDA11. **NOTE:** When using `rust-bert` as dependency from [crates.io](https://crates.io), please check the required `LIBTORCH` on the published package [readme](https://crates.io/crates/rust-bert) as it may differ from the version documented here (applying to the current repository version).
+2. Extract the library to a location of your choice
+3. Set the following environment variables
+
+##### Linux:
+
+```bash
+export LIBTORCH=/path/to/libtorch
+export LD_LIBRARY_PATH=${LIBTORCH}/lib:$LD_LIBRARY_PATH
+```
+
+##### Windows
+
+```powershell
+$Env:LIBTORCH = "X:\path\to\libtorch"
+$Env:Path += ";X:\path\to\libtorch\lib"
+```
+
+#### macOS + Homebrew
+
+```bash
+brew install pytorch jq
+export LIBTORCH=$(brew --cellar pytorch)/$(brew info --json pytorch | jq -r '.[0].installed[0].version')
+export LD_LIBRARY_PATH=${LIBTORCH}/lib:$LD_LIBRARY_PATH
+```
+
+### Automatic installation
+
+Alternatively, you can let the `build` script automatically download the `libtorch` library for you. The `download-libtorch` feature flag needs to be enabled.
+The CPU version of libtorch will be downloaded by default. To download a CUDA version, please set the environment variable `TORCH_CUDA_VERSION` to `cu118`.
+Note that the libtorch library is large (order of several GBs for the CUDA-enabled version) and the first build may therefore take several minutes to complete.
+
+### Verifying installation
+
+Verify your installation (and linking with libtorch) by adding the `rust-bert` dependency to your `Cargo.toml` or by cloning the rust-bert source and running an example:
+
+```bash
+git clone git@github.com:guillaume-be/rust-bert.git
+cd rust-bert
+cargo run --example sentence_embeddings
+```
+
 ## License
 
 TGS is licensed under the [MIT License](path_to_license.md).
