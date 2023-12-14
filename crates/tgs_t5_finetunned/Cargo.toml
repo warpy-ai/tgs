@@ -26,3 +26,4 @@ tch = "0.13.0"            # Torch library for Rust
 rust_tokenizers = "8.1.0" # Use the version you need
 anyhow = "1.0"
 ndarray = "0.15.6"
+tokenizers = "0.15.0"

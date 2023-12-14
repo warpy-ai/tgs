@@ -1,101 +1,105 @@
-use anyhow::Result;
-use rust_bert::resources::{LocalResource, ResourceProvider};
+use tch::{nn, no_grad, Device, Kind, Tensor};
+// Assume a crate or module that can handle T5 models
 use rust_bert::t5::{T5Config, T5ForConditionalGeneration};
 use rust_bert::Config;
 use rust_tokenizers::tokenizer::{T5Tokenizer, Tokenizer, TruncationStrategy};
 use std::path::Path;
-use std::path::PathBuf;
-use tch::{nn, no_grad, Device, Tensor};
 
-fn load_model() -> Result<(T5ForConditionalGeneration, T5Tokenizer, nn::VarStore)> {
+pub fn return_command(input_text: &str) -> Result<String, Box<dyn std::error::Error>> {
     let root_path = Path::new(env!("CARGO_MANIFEST_DIR"));
 
+    let device = Device::Cpu;
+    // Load the model - adapt this part based on your Rust T5 handling library
     let config_path = root_path.join("model/config.json");
-    let config_resource = LocalResource {
-        local_path: PathBuf::from(config_path),
-    };
-
-    let spiece_path = root_path.join("model/spiece.model");
-    let sentence_piece_resource = LocalResource {
-        local_path: PathBuf::from(spiece_path),
-    };
-
-    let weights_path = root_path.join("model/rust_model.ot");
-    let weights_resource = LocalResource {
-        local_path: PathBuf::from(weights_path),
-    };
-
-    let config_path = config_resource.get_local_path()?;
-    let spiece_path = sentence_piece_resource.get_local_path()?;
-    let weights_path = weights_resource.get_local_path()?;
-
-    let device = Device::cuda_if_available();
-    let mut vs = nn::VarStore::new(device);
-
     let config = T5Config::from_file(config_path);
-    let model = T5ForConditionalGeneration::new(&vs.root(), &config);
-    let tokenizer = T5Tokenizer::from_file(spiece_path.to_str().unwrap(), false)?;
-    vs.load(weights_path)?;
+    let p = nn::VarStore::new(device);
+    let spiece_path = root_path.join("model/spiece.model");
+    let model = T5ForConditionalGeneration::new(&p.root() / "t5", &config);
 
-    Ok((model, tokenizer, vs))
+    // Load the tokenizer
+    let tokenizer = T5Tokenizer::from_file(spiece_path, false)?;
+
+    // Test the model
+    let answer = generate_answer(&model, &tokenizer, input_text, 50);
+    Ok(answer)
 }
 
-fn tokenize_input(tokenizer: &T5Tokenizer, input_text: &str) -> Tensor {
-    let tokens = tokenizer.encode(input_text, None, 512, &TruncationStrategy::DoNotTruncate, 0);
-    let input_tensor = Tensor::from(tokens.token_ids.as_slice());
-    input_tensor.to_kind(tch::Kind::Int64).unsqueeze(0)
-}
+fn generate_answer(
+    model: &T5ForConditionalGeneration,
+    tokenizer: &T5Tokenizer,
+    input_text: &str,
+    max_length: usize,
+) -> String {
+    let device = Device::Cpu;
 
-fn run_inference(model: &T5ForConditionalGeneration, input_tensor: &Tensor) -> Tensor {
+    println!("Input text: {:?}", input_text);
+
+    // Tokenize the input text
+    let tokenized_input = tokenizer.encode(
+        input_text,
+        None,
+        max_length,
+        &TruncationStrategy::DoNotTruncate,
+        max_length,
+    );
+
+    println!("Tokenized input IDs: {:?}", tokenized_input.token_ids);
+
+    // Convert tokenized input to tensor
+    let input_ids: Tensor = tokenized_input.token_ids.as_slice().into();
+
+    // Create attention mask based on the length of the input
+    let attention_mask = Tensor::ones(
+        &[1, input_ids.size1().unwrap() as i64],
+        (Kind::Int64, device),
+    );
+
+    // Placeholder for decoder input (adjust as necessary)
+    let decoder_input_length = input_ids.size1().unwrap() as i64;
+    let decoder_input_ids = Tensor::zeros(&[1, decoder_input_length], (Kind::Int64, device));
+
+    let reshaped_input_tensor = input_ids.unsqueeze(0);
+    println!("Tensor shape: {:?}", input_ids.size());
+    println!("Input Tensor shape: {:?}", reshaped_input_tensor.size());
+    println!("Attention Mask shape: {:?}", attention_mask.size());
+    println!("Decoder Input IDs shape: {:?}", decoder_input_ids.size());
+
+    // Call forward_t
     let model_output = no_grad(|| {
         model.forward_t(
-            Some(input_tensor), // input ids
-            None,               // attention mask (optional)
-            None,               // encoder output (optional)
-            None,               // decoder input ids (optional)
-            None,               // decoder attention mask (optional)
-            None,               // input embeds (optional)
-            None,               // decoder input embeds (optional)
-            None,               // old layer states (optional)
-            false,              // train mode (false for inference)
+            Some(&reshaped_input_tensor),
+            Some(&attention_mask),
+            None,
+            Some(&decoder_input_ids),
+            Some(&attention_mask),
+            None,
+            None,
+            None,
+            false,
         )
     });
-    model_output.decoder_output
-}
 
-fn decode_output(tokenizer: &T5Tokenizer, output_tensor: &Tensor) -> String {
-    let output_ids = output_tensor.argmax(-1, false).view([-1]);
-    let output_vec: Vec<i64> = output_ids.iter::<i64>().unwrap().collect();
-    tokenizer.decode(&output_vec[..], true, true)
-}
+    println!(
+        "Model Output shape: {:?}",
+        model_output.decoder_output.size()
+    );
 
-pub fn return_command(input_text: &str) -> Result<String> {
-    let (model, tokenizer, _var_store) = load_model()?;
-    let input_tensor = tokenize_input(&tokenizer, input_text);
-    println!("Input tensor shape: {:?}", input_tensor.size());
-    println!("Input tensor content: {:?}", input_tensor);
+    // Assuming model_output.decoder_output is the tensor containing generated ids
+    let output_tensor: Tensor = model_output.decoder_output;
 
-    let output_tensor = run_inference(&model, &input_tensor);
-    let decoded_output = decode_output(&tokenizer, &output_tensor);
+    let output_prob = output_tensor.softmax(-1, tch::Kind::Float);
+    let output_ids = output_prob.argmax(-1, true);
 
-    Ok(decoded_output)
-}
+    println!("Output probabilities {:?}", output_prob);
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+    // Flatten the tensor to a 1D vector of token IDs
+    let output_vec: Vec<i64> = output_ids.view([-1]).iter::<i64>().unwrap().collect();
 
-    #[test]
-    fn test_main() -> Result<()> {
-        // Call the main function
-        let result = return_command("list all files in a directory");
+    println!("Output id {:?}", output_ids);
+    // Decode the output
+    let decoded_output = tokenizer.decode(&output_vec[..], true, false);
 
-        // Print the result for inspection
-        println!("Translation result: {:?}", result);
+    println!("Decoded output: {}", decoded_output);
 
-        // Assert specific conditions on the result
-        // For example, ensure the result is not empty
-
-        Ok(())
-    }
+    decoded_output
 }

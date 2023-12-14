@@ -66,6 +66,12 @@ This cache location defaults to `~/.cache/.rustbert`, but can be changed by sett
 2. Extract the library to a location of your choice
 3. Set the following environment variables
 
+### Convert weights to .ot
+
+```bash
+python ./utils/convert_model.py model/pytorch_model.bin
+```
+
 ##### Linux:
 
 ```bash
