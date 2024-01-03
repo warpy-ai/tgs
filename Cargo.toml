@@ -1,3 +1,4 @@
+workspace = { members = ["crates/tgs_setup"] }
 [package]
 name = "tgs"
 version = "0.1.0"

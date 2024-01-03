@@ -27,7 +27,10 @@ fn main() {
             .into_owned()
             .trim()
             .to_string();
-        print!("{} git:({})> ", current_dir_str, branch_name);
+        print!(
+            "{}  {} git:({}) \u{2023}",
+            "\u{27e3}", current_dir_str, branch_name
+        );
         io::stdout().flush().unwrap(); // Ensure the prompt is displayed immediately.
 
         // 2. Read a line of input.
