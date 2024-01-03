@@ -10,3 +10,6 @@ version = "0.0.1"
 [[test]]
 name = "test"
 path = "tests/test.rs"
+
+[dependencies]
+tgs_login = { path = '../tgs_login' }

@@ -1,10 +1,11 @@
 use std::io;
 use std::process::ExitStatus;
+use tgs_login::auth::authenticate;
 
 #[cfg(unix)]
 use std::os::unix::process::ExitStatusExt;
 
-pub fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> {
+pub async fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> {
     // Handle built-in commands
     let command_name = std::path::Path::new(bin)
         .file_name()
@@ -20,11 +21,23 @@ pub fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> {
             std::env::set_current_dir(new_dir)?;
             Ok(ExitStatus::from_raw(0)) // Return a successful exit status
         }
+        "login" => {
+            let server_url = "http://127.0.0.1:8000";
+            let redirect_uri = "http://localhost:8000";
+
+            match authenticate(server_url, redirect_uri).await {
+                Ok(token) => println!("Authenticated with token: {}", token),
+                Err(e) => eprintln!("Authentication failed: {}", e),
+            }
+
+            Ok(ExitStatus::from_raw(0)) // Return a successful exit status
+        }
         "echo" => {
             println!("{}", args.join(" "));
             Ok(ExitStatus::from_raw(0))
         }
         "exit" => {
+            println!("Exiting...");
             Ok(ExitStatus::from_raw(0)) // Using 200 as a special code for exit
         }
         _ => {
