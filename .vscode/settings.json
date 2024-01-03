@@ -1,9 +1,9 @@
 {
     "rust-analyzer.linkedProjects": [
-        "./tgs/Cargo.toml",
-        "./tgs/Cargo.toml",
-        "./tgs/Cargo.toml",
-        "./tgs/Cargo.toml"
+        "./Cargo.toml",
+        "./Cargo.toml",
+        "./Cargo.toml",
+        "./Cargo.toml"
     ],
     "rust-analyzer.showUnlinkedFileNotification": false,
     "[python]": {

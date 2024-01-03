@@ -1,15 +1,33 @@
+use std::env;
 use std::io::{self, Write};
+use std::process::Command;
 use tgs_handler;
 use tgs_shell;
 use tgs_t5_finetunned;
+use tokio::runtime;
 
 fn main() {
     let path = std::env::var("PATH").unwrap();
     tgs_welcome::display_welcome_message();
+    let mut runtime = runtime::Runtime::new().unwrap();
 
     loop {
         // 1. Print a prompt.
-        print!("tgs> ");
+        let current_dir = env::current_dir().unwrap();
+        let current_dir_str = current_dir.to_str().unwrap();
+
+        let output = Command::new("git")
+            .arg("rev-parse")
+            .arg("--abbrev-ref")
+            .arg("HEAD")
+            .output()
+            .unwrap();
+
+        let branch_name = String::from_utf8_lossy(&output.stdout)
+            .into_owned()
+            .trim()
+            .to_string();
+        print!("{} git:({})> ", current_dir_str, branch_name);
         io::stdout().flush().unwrap(); // Ensure the prompt is displayed immediately.
 
         // 2. Read a line of input.
@@ -26,7 +44,7 @@ fn main() {
         match bin {
             Ok(bin) => {
                 let bin_str = bin.to_str().unwrap(); // Convert PathBuf to &str
-                match tgs_shell::execute(bin_str, &value[1..]) {
+                match runtime.block_on(tgs_shell::execute(bin_str, &value[1..])) {
                     Ok(exit_status) => {
                         if !exit_status.success() {
                             eprintln!("Command exited with status: {}", exit_status);
@@ -50,7 +68,7 @@ fn main() {
                         match inferred_bin {
                             Ok(inferred_bin_path) => {
                                 let bin_str = inferred_bin_path.to_str().unwrap();
-                                match tgs_shell::execute(bin_str, &value[1..]) {
+                                match runtime.block_on(tgs_shell::execute(bin_str, &value[1..])) {
                                     Ok(exit_status) => {
                                         if !exit_status.success() {
                                             eprintln!(

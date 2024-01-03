@@ -1,9 +1,8 @@
 use std::io;
-use std::process::ExitStatus;
-use tgs_login::auth::authenticate;
-
 #[cfg(unix)]
 use std::os::unix::process::ExitStatusExt;
+use std::process::ExitStatus;
+use tgs_login::authenticate;
 
 pub async fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> {
     // Handle built-in commands
