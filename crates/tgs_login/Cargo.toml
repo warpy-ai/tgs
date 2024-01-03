@@ -11,3 +11,4 @@ hyper-util = { version = "0.1", features = ["full"] }
 tokio = { version = "1", features = ["full"] }
 webbrowser = "0.8.12"
 url = "2.2"
+actix-rt = "2.7.0"
