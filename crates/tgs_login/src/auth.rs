@@ -21,12 +21,15 @@ pub async fn authenticate(
     let server: Server = HttpServer::new(move || {
         let token_for_route = Arc::clone(&token_for_handler);
 
+        println!("Starting server...");
+
         App::new().data(token_for_route).route(
-            "/",
+            "/loader",
             web::get().to(
                 |req: web::Query<HashMap<String, String>>,
                  token: web::Data<Arc<Mutex<Option<String>>>>| async move {
                     let token_value = req.get("token").unwrap().to_string();
+                    println!("Received token: {}", token_value);
 
                     // Store the token in the shared state
                     *token.lock().unwrap() = Some(token_value);
