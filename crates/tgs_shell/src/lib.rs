@@ -22,7 +22,6 @@ pub async fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> 
         }
         "login" => {
             let server_url = "http://127.0.0.1:8000";
-            let redirect_uri = "http://localhost:3400";
 
             match authenticate(server_url).await {
                 Ok(token) => println!("Authenticated with token: {}", token),
