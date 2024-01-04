@@ -18,7 +18,7 @@ pub mod custom {
     pub const ORANGE: Color = Color::TrueColor {
         r: 255,
         g: 165,
-        b: 0, // Orange
+        b: 0,
     };
 }
 
