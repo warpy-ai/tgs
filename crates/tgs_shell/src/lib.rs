@@ -39,6 +39,10 @@ pub async fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> 
             println!("{}", args.join(" "));
             Ok(ExitStatus::from_raw(0))
         }
+        "history" => {
+            println!("TODO: Implement history");
+            Ok(ExitStatus::from_raw(0))
+        }
         "exit" => {
             println!("Exiting...");
             Ok(ExitStatus::from_raw(0)) // Using 200 as a special code for exit

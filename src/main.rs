@@ -1,7 +1,8 @@
-use std::env;
-use std::io::{self, Write};
-use std::process::Command;
+
+use std::io::{self};
+
 use tgs_handler;
+use tgs_prompt::terminal_prompt;
 use tgs_setup;
 use tgs_shell;
 use tgs_t5_finetunned;
@@ -10,7 +11,7 @@ use tokio::runtime;
 fn main() {
     let path = std::env::var("PATH").unwrap();
     tgs_welcome::display_welcome_message();
-    let mut runtime = runtime::Runtime::new().unwrap();
+    let runtime = runtime::Runtime::new().unwrap();
 
     let config = tgs_setup::TgsSetup::new();
     match config.setup() {
@@ -20,25 +21,7 @@ fn main() {
 
     loop {
         // 1. Print a prompt.
-        let current_dir = env::current_dir().unwrap();
-        let current_dir_str = current_dir.to_str().unwrap();
-
-        let output = Command::new("git")
-            .arg("rev-parse")
-            .arg("--abbrev-ref")
-            .arg("HEAD")
-            .output()
-            .unwrap();
-
-        let branch_name = String::from_utf8_lossy(&output.stdout)
-            .into_owned()
-            .trim()
-            .to_string();
-        print!(
-            "{}  {} git:({}) \u{2023} ",
-            "\u{27e3}", current_dir_str, branch_name
-        );
-        io::stdout().flush().unwrap(); // Ensure the prompt is displayed immediately.
+        terminal_prompt();
 
         // 2. Read a line of input.
         let mut input = String::new();
