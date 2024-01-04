@@ -13,3 +13,4 @@ path = "tests/test.rs"
 
 [dependencies]
 tgs_login = { path = '../tgs_login' }
+tgs_setup = { path = '../tgs_setup' }

@@ -2,6 +2,7 @@ use std::env;
 use std::io::{self, Write};
 use std::process::Command;
 use tgs_handler;
+use tgs_setup;
 use tgs_shell;
 use tgs_t5_finetunned;
 use tokio::runtime;
@@ -10,6 +11,12 @@ fn main() {
     let path = std::env::var("PATH").unwrap();
     tgs_welcome::display_welcome_message();
     let mut runtime = runtime::Runtime::new().unwrap();
+
+    let config = tgs_setup::TgsSetup::new();
+    match config.setup() {
+        Ok(_) => println!("TGS setup complete."),
+        Err(e) => eprintln!("Error setting up TGS: {}", e),
+    }
 
     loop {
         // 1. Print a prompt.
@@ -28,7 +35,7 @@ fn main() {
             .trim()
             .to_string();
         print!(
-            "{}  {} git:({}) \u{2023}",
+            "{}  {} git:({}) \u{2023} ",
             "\u{27e3}", current_dir_str, branch_name
         );
         io::stdout().flush().unwrap(); // Ensure the prompt is displayed immediately.
