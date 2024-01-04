@@ -1,4 +1,4 @@
-workspace = { members = ["crates/tgs_setup"] }
+workspace = { members = [ "crates/tgs_colors","crates/tgs_setup"] }
 [package]
 name = "tgs"
 version = "0.1.0"
@@ -14,6 +14,7 @@ tgs_handler = { path = 'crates/tgs_handler' }
 tgs_t5_finetunned = { path = 'crates/tgs_t5_finetunned' }
 tgs_welcome = { path = 'crates/tgs_welcome' }
 tgs_login = { path = 'crates/tgs_login' }
+tgs_setup = { path = 'crates/tgs_setup' }
 colored = "2.0.0"
 rand = "0.8.5"
 chrono = "0.4.19"

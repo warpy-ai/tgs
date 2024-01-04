@@ -15,7 +15,6 @@ async fn token_receiver(
             let mut token_store = token_state.lock().unwrap();
             *token_store = Some(token.clone());
         }
-        println!("Token received: {}", token);
         let _ = shutdown_sender.send(()); // Send shutdown signal
         HttpResponse::Ok().body("Token received, you may close this window.")
     } else {

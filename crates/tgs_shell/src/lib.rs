@@ -3,6 +3,7 @@ use std::io;
 use std::os::unix::process::ExitStatusExt;
 use std::process::ExitStatus;
 use tgs_login::authenticate;
+use tgs_setup::TgsSetup;
 
 pub async fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> {
     // Handle built-in commands
@@ -24,7 +25,11 @@ pub async fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> 
             let server_url = "http://127.0.0.1:8000";
 
             match authenticate(server_url).await {
-                Ok(token) => println!("Authenticated with token: {}", token),
+                Ok(token) => {
+                    let config = TgsSetup::new();
+                    config.update_tgsc_token(&token).unwrap();
+                    println!("Logged in successfully");
+                }
                 Err(e) => eprintln!("Authentication failed: {}", e),
             }
 
