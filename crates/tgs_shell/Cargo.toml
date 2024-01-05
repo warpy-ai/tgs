@@ -14,3 +14,5 @@ path = "tests/test.rs"
 [dependencies]
 tgs_login = { path = '../tgs_login' }
 tgs_setup = { path = '../tgs_setup' }
+tgs_prompt = { path = '../tgs_prompt' }
+chrono = "0.4.31"

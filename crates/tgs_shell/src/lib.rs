@@ -3,6 +3,7 @@ use std::io;
 use std::os::unix::process::ExitStatusExt;
 use std::process::ExitStatus;
 use tgs_login::authenticate;
+use tgs_prompt::format_as_table;
 use tgs_setup::TgsSetup;
 
 pub async fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> {
@@ -20,6 +21,22 @@ pub async fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> 
             let new_dir = args.get(0).map_or(".", |x| *x); // Default to the current directory if no argument is provided
             std::env::set_current_dir(new_dir)?;
             Ok(ExitStatus::from_raw(0)) // Return a successful exit status
+        }
+        "ls" => {
+            let output = ::std::process::Command::new("ls")
+                .args(args)
+                .output()
+                .expect("failed to execute process");
+
+            let raw_output =
+                std::str::from_utf8(&output.stdout).unwrap_or_else(|_| "<invalid UTF-8>");
+
+            // Format the output here
+            let formatted_output = format_as_table(raw_output);
+
+            println!("{}", formatted_output);
+
+            Ok(ExitStatus::from_raw(0))
         }
         "login" => {
             let server_url = "http://127.0.0.1:8000";

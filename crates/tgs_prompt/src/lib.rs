@@ -51,3 +51,40 @@ pub fn terminal_prompt() {
     print!("{}  {} {} {} ", pre, dir, git_prompt, action);
     io::stdout().flush().unwrap(); // Ensure the prompt is displayed immediately.
 }
+
+pub fn format_as_table(output: &str) -> String {
+    let lines: Vec<&str> = output.lines().collect();
+
+    // Check if the output is in long format (e.g., starts with file permissions)
+    let is_long_format = lines
+        .get(0)
+        .map_or(false, |line| line.starts_with("d") || line.starts_with("-"));
+
+    let mut table = String::from("\u{2502}");
+    if is_long_format {
+        for line in lines {
+            table.push_str("\t");
+            table.push_str(line);
+            table.push_str("\n\u{2502}");
+        }
+    } else {
+        for (i, item) in lines
+            .iter()
+            .flat_map(|line| line.split_whitespace())
+            .enumerate()
+        {
+            table.push_str("\t");
+            table.push_str(item);
+            if (i + 1) % 2 == 0 {
+                table.push_str("\n\u{2502}");
+            }
+        }
+    }
+
+    if !table.ends_with('\n') {
+        table.push('\n');
+    }
+    table.push_str("\u{2502}_");
+
+    table
+}
