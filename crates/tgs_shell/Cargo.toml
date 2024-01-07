@@ -15,4 +15,5 @@ path = "tests/test.rs"
 tgs_login = { path = '../tgs_login' }
 tgs_setup = { path = '../tgs_setup' }
 tgs_prompt = { path = '../tgs_prompt' }
+tgs_handler = { path = '../tgs_handler' }
 chrono = "0.4.31"

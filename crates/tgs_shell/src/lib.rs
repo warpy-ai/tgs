@@ -2,92 +2,102 @@ use std::io;
 #[cfg(unix)]
 use std::os::unix::process::ExitStatusExt;
 use std::process::ExitStatus;
+use tgs_handler::CommandType;
 use tgs_login::authenticate;
 use tgs_prompt::format_as_table;
 use tgs_setup::TgsSetup;
 
-pub async fn execute(bin: &str, args: &[&str]) -> Result<ExitStatus, io::Error> {
-    // Handle built-in commands
-    let command_name = std::path::Path::new(bin)
-        .file_name()
-        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Invalid binary path"))?
-        .to_str()
-        .ok_or_else(|| {
-            io::Error::new(io::ErrorKind::InvalidData, "Invalid UTF-8 in binary path")
-        })?;
+pub async fn execute(command_type: CommandType, args: &[&str]) -> Result<ExitStatus, io::Error> {
+    match command_type {
+        CommandType::Binary(bin_path) => {
+            let bin_str = bin_path.to_str().ok_or_else(|| {
+                io::Error::new(io::ErrorKind::InvalidInput, "Invalid binary path")
+            })?;
 
-    match command_name {
-        "cd" => {
-            let new_dir = args.get(0).map_or(".", |x| *x); // Default to the current directory if no argument is provided
-            std::env::set_current_dir(new_dir)?;
-            Ok(ExitStatus::from_raw(0)) // Return a successful exit status
-        }
-        "ls" => {
-            let output = ::std::process::Command::new("ls")
-                .args(args)
-                .output()
-                .expect("failed to execute process");
+            // Handle built-in commands
+            let command_name = std::path::Path::new(bin_str)
+                .file_name()
+                .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Invalid binary path"))?
+                .to_str()
+                .ok_or_else(|| {
+                    io::Error::new(io::ErrorKind::InvalidData, "Invalid UTF-8 in binary path")
+                })?;
 
-            let raw_output =
-                std::str::from_utf8(&output.stdout).unwrap_or_else(|_| "<invalid UTF-8>");
-
-            // Format the output here
-            let formatted_output = format_as_table(raw_output);
-
-            println!("{}", formatted_output);
-
-            Ok(ExitStatus::from_raw(0))
-        }
-        "login" => {
-            let server_url = "http://127.0.0.1:8000";
-
-            match authenticate(server_url).await {
-                Ok(token) => {
-                    let config = TgsSetup::new();
-                    config.update_tgsc_token(&token).unwrap();
-                    println!("Logged in successfully");
+            match command_name {
+                "cd" => {
+                    let new_dir = args.get(0).map_or(".", |x| *x); // Default to the current directory if no argument is provided
+                    std::env::set_current_dir(new_dir)?;
+                    Ok(ExitStatus::from_raw(0)) // Return a successful exit status
                 }
-                Err(e) => eprintln!("Authentication failed: {}", e),
+                "ls" => {
+                    let output = ::std::process::Command::new("ls")
+                        .args(args)
+                        .output()
+                        .expect("failed to execute process");
+
+                    let raw_output =
+                        std::str::from_utf8(&output.stdout).unwrap_or_else(|_| "<invalid UTF-8>");
+
+                    // Format the output here
+                    let formatted_output = format_as_table(raw_output);
+
+                    println!("{}", formatted_output);
+
+                    Ok(ExitStatus::from_raw(0))
+                }
+                "wplogin" => {
+                    let server_url = "http://127.0.0.1:8000";
+
+                    match authenticate(server_url).await {
+                        Ok(token) => {
+                            let config = TgsSetup::new();
+                            config.update_tgsc_token(&token).unwrap();
+                            println!("Logged in successfully");
+                        }
+                        Err(e) => eprintln!("Authentication failed: {}", e),
+                    }
+
+                    Ok(ExitStatus::from_raw(0)) // Return a successful exit status
+                }
+                "echo" => {
+                    println!("{}", args.join(" "));
+                    Ok(ExitStatus::from_raw(0))
+                }
+                "history" => {
+                    println!("TODO: Implement history");
+                    Ok(ExitStatus::from_raw(0))
+                }
+                _ => {
+                    // Execute the command
+                    let mut command = {
+                        let mut command = ::std::process::Command::new(bin_path);
+                        command.args(args);
+                        command
+                    };
+
+                    match command.output() {
+                        Ok(output) => {
+                            let exit_code = output
+                                .status
+                                .code()
+                                .unwrap_or(if output.status.success() { 0 } else { 1 });
+                            println!("{}", String::from_utf8_lossy(&output.stdout[..]));
+                            eprintln!("{}", String::from_utf8_lossy(&output.stderr[..]));
+                            Ok(ExitStatus::from_raw(exit_code))
+                        }
+                        Err(e) => {
+                            eprintln!("{}", e);
+                            Ok(ExitStatus::from_raw(126))
+                        }
+                    }
+                }
             }
-
-            Ok(ExitStatus::from_raw(0)) // Return a successful exit status
         }
-        "echo" => {
-            println!("{}", args.join(" "));
+        CommandType::Custom(custom_command) => {
+            // Handle the custom command here
+            // ...
+            println!("Executing custom command: {}", custom_command);
             Ok(ExitStatus::from_raw(0))
-        }
-        "history" => {
-            println!("TODO: Implement history");
-            Ok(ExitStatus::from_raw(0))
-        }
-        "exit" => {
-            println!("Exiting...");
-            Ok(ExitStatus::from_raw(0)) // Using 200 as a special code for exit
-        }
-        _ => {
-            // Execute the command
-            let mut command = {
-                let mut command = ::std::process::Command::new(bin);
-                command.args(args);
-                command
-            };
-
-            match command.output() {
-                Ok(output) => {
-                    let exit_code =
-                        output
-                            .status
-                            .code()
-                            .unwrap_or(if output.status.success() { 0 } else { 1 });
-                    println!("{}", String::from_utf8_lossy(&output.stdout[..]));
-                    eprintln!("{}", String::from_utf8_lossy(&output.stderr[..]));
-                    Ok(ExitStatus::from_raw(exit_code))
-                }
-                Err(e) => {
-                    eprintln!("{}", e);
-                    Ok(ExitStatus::from_raw(126))
-                }
-            }
         }
     }
 }

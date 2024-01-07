@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 use tgs_colors::custom;
+
 /// A `LoadingIndicator` handles the animation of a loading indicator.
 pub struct LoadingIndicator {
     /// A mutex to indicate whether the loading indicator is running or not.

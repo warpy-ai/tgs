@@ -34,9 +34,8 @@ fn main() {
 
         // 5. Execute the command using tgs_shell
         match bin {
-            Ok(bin) => {
-                let bin_str = bin.to_str().unwrap(); // Convert PathBuf to &str
-                match runtime.block_on(tgs_shell::execute(bin_str, &value[1..])) {
+            Ok(command_type) => {
+                match runtime.block_on(tgs_shell::execute(command_type, &value[1..])) {
                     Ok(exit_status) => {
                         if !exit_status.success() {
                             eprintln!("Command exited with status: {}", exit_status);
@@ -59,8 +58,9 @@ fn main() {
                         println!("Inferred command: {}", inferred_cmd);
                         match inferred_bin {
                             Ok(inferred_bin_path) => {
-                                let bin_str = inferred_bin_path.to_str().unwrap();
-                                match runtime.block_on(tgs_shell::execute(bin_str, &value[1..])) {
+                                match runtime
+                                    .block_on(tgs_shell::execute(inferred_bin_path, &value[1..]))
+                                {
                                     Ok(exit_status) => {
                                         if !exit_status.success() {
                                             eprintln!(
@@ -69,7 +69,9 @@ fn main() {
                                             );
                                         }
                                     }
-                                    Err(err) => eprintln!("Error: {}", err),
+                                    Err(e) => {
+                                        eprintln!("Error: {}", e);
+                                    }
                                 }
                             }
                             Err(err) => eprintln!("Error after inference: {}", err),
