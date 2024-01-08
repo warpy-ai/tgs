@@ -201,7 +201,7 @@ impl<'input> Lexer<'input> {
 impl<'input> Iterator for Lexer<'input> {
     type Item = Spanned<Token<'input>, usize, Error>;
 
-    // TODO create proc macro to generate all this?
+    // TODO create proc macro
     fn next(&mut self) -> Option<Self::Item> {
         while let Some((start, ch, end)) = self.advance() {
             // TODO see if this could be generated with macro

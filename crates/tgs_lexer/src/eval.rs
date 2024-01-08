@@ -1,4 +1,14 @@
-// Lot of code based off of https://github.com/nuta/nsh/blob/main/src/eval.rs
+/*
+Citation:
+```
+@inproceedings{eval,
+    title = "Nut nsh - A POSIX shell",
+    author = "Seiya Nuta",
+    year = "2023",
+    url = "https://github.com/nuta/nsh/blob/main/src/eval.rs",
+}
+```
+*/
 
 use std::process::ExitStatus;
 

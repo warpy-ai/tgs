@@ -49,7 +49,7 @@ impl Lang for PosixLang {
         rt: &mut Runtime,
         line: String,
     ) -> anyhow::Result<CmdOutput> {
-        // TODO rewrite the error handling here better
+        // TODO rewrite the error
         let lexer = Lexer::new(&line);
         let parser = Parser::default();
         let cmd = match parser.parse(lexer) {
