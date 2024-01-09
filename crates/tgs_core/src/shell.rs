@@ -9,7 +9,7 @@ use std::{
 
 use anyhow::anyhow;
 use log::error;
-use shrs_job::JobManager;
+use tgs_utils::JobManager;
 
 use crate::{
     alias::Alias,

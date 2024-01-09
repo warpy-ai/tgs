@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 regex = "1"
+tgs_utils = { path = '../tgs_utils' }
 signal-hook = "0.3"
 clap = { version = "4.1", features = ["derive"] }
 nix = { version = "0.27.1", default-features = false, features = [

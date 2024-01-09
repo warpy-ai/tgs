@@ -1,7 +1,7 @@
 workspace = { members = [
     "crates/tgs_colors", "crates/tgs_command", "crates/tgs_core", "crates/tgs_lexer",
-    "crates/tgs_prompt",
-    "crates/tgs_setup", "crates/tgs_utils",
+    "crates/tgs_prompt", "crates/tgs_readline", "crates/tgs_services",
+    "crates/tgs_setup", "crates/tgs_utils", "crates/tgs_vi",
 ] }
 [package]
 name = "tgs"
