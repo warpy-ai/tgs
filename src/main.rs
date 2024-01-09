@@ -49,7 +49,7 @@ fn main() {
             Err(e) => {
                 // If we didn't find the command, let's see if tgs_t5_finetunned can infer one
                 let command_str = value.join(" ");
-                match tgs_t5_finetunned::return_command(&command_str) {
+                match tgs_t5_finetunned::from_py::execute(&command_str) {
                     Ok(inferred_cmd) => {
                         // Now, you'd need to split the inferred command into the binary and arguments
                         // For simplicity, let's assume the inferred command is just a binary name, similar to your initial input
