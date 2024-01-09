@@ -3,6 +3,31 @@ use colored::*;
 
 pub mod custom {
     use super::*;
+
+    pub const PURPLE: Color = Color::TrueColor {
+        r: 122,
+        g: 114,
+        b: 229,
+    };
+
+    pub const DARK_BLUE: Color = Color::TrueColor {
+        r: 20,
+        g: 94,
+        b: 152,
+    };
+
+    pub const DARK_PINK: Color = Color::TrueColor {
+        r: 171,
+        g: 87,
+        b: 151,
+    };
+
+    pub const DARK_WHITE: Color = Color::TrueColor {
+        r: 218,
+        g: 208,
+        b: 192,
+    };
+
     pub const CYAN: Color = Color::TrueColor {
         r: 0,
         g: 255,
@@ -36,6 +61,29 @@ pub fn display_gradient_text(text: &str, start_color: Color, end_color: Color) {
 
 pub fn display_color_text(text: &str, color: Color) {
     println!("{}", text.color(color));
+}
+
+pub fn return_color_text(text: &str, color: Color) -> String {
+    text.color(color).to_string()
+}
+
+pub fn return_gradient_color_text(text: &str, color_init: Color, color_end: Color) -> String {
+    let lines: Vec<&str> = text.lines().collect();
+    let mut gradient_text = String::new();
+
+    // Apply gradient to each line
+    for (i, line) in lines.iter().enumerate() {
+        let gradient_ratio = i as f32 / lines.len() as f32;
+        let blended_color = blend_color(color_init, color_end, gradient_ratio);
+        gradient_text.push_str(&line.color(blended_color).to_string());
+
+        // Add a newline character for all but the last line
+        if i < lines.len() - 1 {
+            gradient_text.push('\n');
+        }
+    }
+
+    gradient_text
 }
 
 pub fn blend_color(start: Color, end: Color, ratio: f32) -> Color {
