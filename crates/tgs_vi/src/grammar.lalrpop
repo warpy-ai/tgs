@@ -1,0 +1,61 @@
+use std::str::FromStr;
+use crate::ast::{Motion, Action, Command};
+
+grammar;
+
+pub Command: Command = <r:Repeat?> <a:Action> => {
+    Command {
+        repeat: r.unwrap_or(1),
+        action: a,
+    }
+};
+
+pub Motion: Motion = {
+    "k" => Motion::Up,
+    "j" => Motion::Down,
+    "b" => Motion::BackWord,
+    "w" => Motion::WordPunc,
+    "W" => Motion::Word,
+    "h" => Motion::Left,
+    "l" => Motion::Right,
+    "$" => Motion::End,
+    "^" => Motion::Start,
+    "0" => Motion::Start, // currently implementing 0 as same as ^
+    "f" <c:r"[a-zA-Z]"> => Motion::Find(c.chars().next().unwrap()),
+};
+
+pub Action: Action = {
+    <a:DeleteAction> => a,
+    <a:ChangeAction> => a,
+    "y" <m:Motion> => Action::Yank(m),
+    "yy" => Action::Yank(Motion::End),
+    "i" => Action::Insert,
+    "I" => Action::Chain(Box::new(Action::Move(Motion::Start)), Box::new(Action::Insert)),
+    "a" => Action::Chain(Box::new(Action::Move(Motion::Right)), Box::new(Action::Insert)),
+    "A" => Action::Chain(Box::new(Action::Move(Motion::End)), Box::new(Action::Insert)),
+    "x" => Action::Delete(Motion::Right),
+    "u" => Action::Undo,
+    "r" => Action::Redo,
+    "p" => Action::Paste(Motion::Right),
+    "P" => Action::Paste(Motion::None),
+    <m:Motion> => Action::Move(m)
+};
+
+pub DeleteAction: Action = {
+    "d" "d" => Action::Delete(Motion::All),
+    "D" => Action::Delete(Motion::End),
+    "d" <m:Motion> => Action::Delete(m),
+};
+
+pub ChangeAction: Action = {
+    "c" "c" => Action::Chain(Box::new(Action::Delete(Motion::All)), Box::new(Action::Insert)),
+    "C" => Action::Chain(Box::new(Action::Delete(Motion::End)), Box::new(Action::Insert)),
+    "c" <m:Motion> => Action::Chain(Box::new(Action::Delete(m)), Box::new(Action::Insert)),
+    "s" => Action::Chain(Box::new(Action::Delete(Motion::Right)), Box::new(Action::Insert)),
+    "S" => Action::Chain(Box::new(Action::Delete(Motion::All)), Box::new(Action::Insert)),
+    "~" => Action::ToggleCase,
+    "g" "u" <m:Motion> => Action::LowerCase(m),
+    "g" "U" <m:Motion> => Action::UpperCase(m),
+};
+
+pub Repeat: u32 = <s:r"[0-9]+"> => u32::from_str_radix(s, 10).unwrap();

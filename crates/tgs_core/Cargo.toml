@@ -1,0 +1,37 @@
+[package]
+name = "tgs_core"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+regex = "1"
+tgs_utils = { path = '../tgs_utils' }
+tgs_services = { path = '../tgs_services' }
+signal-hook = "0.3"
+clap = { version = "4.1", features = ["derive"] }
+nix = { version = "0.27.1", default-features = false, features = [
+    "fs",
+    "term",
+    "process",
+    "signal",
+] }
+crossterm = "0.27.0"
+derive_builder = "0.12"
+dirs = "5"
+anymap = "0.12.1"
+multimap = "0.9"
+
+
+pino_deref = "0.1"
+
+log = "0.4"
+thiserror = "1"
+anyhow = "1"
+lazy_static = "1.4"
+
+serde = { version = "1", features = ["derive"], optional = true }
+
+[dev-dependencies]
+rexpect = "0.5"

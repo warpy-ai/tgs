@@ -1,0 +1,22 @@
+[package]
+name = "tgs_readline"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+crossterm = { version = "0.27.0", features = ["bracketed-paste"] }
+trie-rs = "0.1"
+derive_builder = "0.12"
+dirs = "5"
+unicode-width = "0.1"
+arboard = "3.2.0"
+
+anyhow = "1"
+thiserror = "1"
+tgs_core = { path = "../tgs_core" }
+tgs_lexer = { path = "../tgs_lexer" }
+tgs_services = { path = "../tgs_services" }
+tgs_vi = { path = "../tgs_vi" }
+tgs_utils = { path = "../tgs_utils" }
