@@ -17,3 +17,10 @@ tgs_setup = { path = '../tgs_setup' }
 tgs_prompt = { path = '../tgs_prompt' }
 tgs_handler = { path = '../tgs_handler' }
 chrono = "0.4.31"
+
+derive_builder = "0.12"
+tgs_core = { path = "../tgs_core" }
+tgs_utils = { path = "../tgs_utils" }
+tgs_lexer = { path = "../tgs_lexer" }
+tgs_readline = { path = "../tgs_readline" }
+tgs_vi = { path = "../tgs_vi" }

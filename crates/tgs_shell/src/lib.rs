@@ -1,103 +1,62 @@
-use std::io;
-#[cfg(unix)]
-use std::os::unix::process::ExitStatusExt;
-use std::process::ExitStatus;
-use tgs_handler::CommandType;
-use tgs_login::authenticate;
-use tgs_prompt::format_as_table;
-use tgs_setup::TgsSetup;
+//! **tgs** is a rust shell with ai
+//!
+//! # Example
+//! The most basic shell can be created very easily:
+//! ```no_run
+//! use tgs_shell::prelude::*;
+//!
+//! fn main() {
+//!     let myshell = ShellBuilder::default()
+//!         .build()
+//!         .unwrap();
+//!
+//!     myshell.run().unwrap();
+//! }
+//! ```
 
-pub async fn execute(command_type: CommandType, args: &[&str]) -> Result<ExitStatus, io::Error> {
-    match command_type {
-        CommandType::Binary(bin_path) => {
-            let bin_str = bin_path.to_str().ok_or_else(|| {
-                io::Error::new(io::ErrorKind::InvalidInput, "Invalid binary path")
-            })?;
+#[macro_use]
+extern crate derive_builder;
 
-            // Handle built-in commands
-            let command_name = std::path::Path::new(bin_str)
-                .file_name()
-                .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Invalid binary path"))?
-                .to_str()
-                .ok_or_else(|| {
-                    io::Error::new(io::ErrorKind::InvalidData, "Invalid UTF-8 in binary path")
-                })?;
+pub use tgs_core::*;
 
-            match command_name {
-                "cd" => {
-                    let new_dir = args.get(0).map_or(".", |x| *x); // Default to the current directory if no argument is provided
-                    std::env::set_current_dir(new_dir)?;
-                    Ok(ExitStatus::from_raw(0)) // Return a successful exit status
-                }
-                "ls" => {
-                    let output = ::std::process::Command::new("ls")
-                        .args(args)
-                        .output()
-                        .expect("failed to execute process");
+pub mod lang {
+    //! Shell command language
 
-                    let raw_output =
-                        std::str::from_utf8(&output.stdout).unwrap_or_else(|_| "<invalid UTF-8>");
+    pub use tgs_lexer::*;
+}
 
-                    // Format the output here
-                    let formatted_output = format_as_table(raw_output);
+pub mod line {
+    //! Readline implementation
 
-                    println!("{}", formatted_output);
+    pub use tgs_readline::*;
+}
 
-                    Ok(ExitStatus::from_raw(0))
-                }
-                "wplogin" => {
-                    let server_url = "http://127.0.0.1:8000";
+mod shell;
+pub use shell::*;
 
-                    match authenticate(server_url).await {
-                        Ok(token) => {
-                            let config = TgsSetup::new();
-                            config.update_tgsc_token(&token).unwrap();
-                            println!("Logged in successfully");
-                        }
-                        Err(e) => eprintln!("Authentication failed: {}", e),
-                    }
+pub mod plugin;
 
-                    Ok(ExitStatus::from_raw(0)) // Return a successful exit status
-                }
-                "echo" => {
-                    println!("{}", args.join(" "));
-                    Ok(ExitStatus::from_raw(0))
-                }
-                "history" => {
-                    println!("TODO: Implement history");
-                    Ok(ExitStatus::from_raw(0))
-                }
-                _ => {
-                    // Execute the command
-                    let mut command = {
-                        let mut command = ::std::process::Command::new(bin_path);
-                        command.args(args);
-                        command
-                    };
+pub mod crossterm {
+    //! Re-export of crossterm types
 
-                    match command.output() {
-                        Ok(output) => {
-                            let exit_code = output
-                                .status
-                                .code()
-                                .unwrap_or(if output.status.success() { 0 } else { 1 });
-                            println!("{}", String::from_utf8_lossy(&output.stdout[..]));
-                            eprintln!("{}", String::from_utf8_lossy(&output.stderr[..]));
-                            Ok(ExitStatus::from_raw(exit_code))
-                        }
-                        Err(e) => {
-                            eprintln!("{}", e);
-                            Ok(ExitStatus::from_raw(126))
-                        }
-                    }
-                }
-            }
-        }
-        CommandType::Custom(custom_command) => {
-            // Handle the custom command here
-            // ...
-            println!("Executing custom command: {}", custom_command);
-            Ok(ExitStatus::from_raw(0))
-        }
-    }
+    pub use crossterm::{
+        style::{Print, Stylize},
+        QueueableCommand,
+    };
+}
+
+pub mod anyhow {
+    //! Re-export of anyhow crate for error handling
+    pub use anyhow::{anyhow, Error, Result, *};
+}
+
+pub mod prelude {
+    //! `use tgs_shell::prelude::*` to import most commonly used structs and functions
+
+    pub use tgs_core::prelude::*;
+    pub use tgs_lexer::PosixLang;
+    pub use tgs_readline::prelude::*;
+    pub use tgs_services::*;
+
+    pub use crate::{anyhow, crossterm, crossterm::*, plugin::*, shell::*};
 }

@@ -204,8 +204,8 @@ impl ViCursorBuffer for CursorBuffer {
 
 #[cfg(test)]
 mod test {
-    use shrs_utils::cursor_buffer::{CursorBuffer, Result};
-    use shrs_vi::{Action, Motion};
+    use tgs_services::cursor_buffer::{CursorBuffer, Result};
+    use tgs_vi::{Action, Motion};
 
     use super::ViCursorBuffer;
 

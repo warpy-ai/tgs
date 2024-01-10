@@ -4,10 +4,10 @@ use std::{cell::RefCell, default, process::ExitStatus, time::Instant};
 
 use ::crossterm::style::Color;
 use log::{info, warn};
-use shrs_core::prelude::*;
-use shrs_job::JobManager;
-use shrs_lang::PosixLang;
-use shrs_line::prelude::*;
+use tgs_core::prelude::*;
+use tgs_lexer::PosixLang;
+use tgs_readline::prelude::*;
+use tgs_utils::JobManager;
 
 use crate::{
     history::{DefaultHistory, History},
@@ -151,7 +151,7 @@ impl ShellConfig {
             env: self.env,
             working_dir: std::env::current_dir().unwrap(),
             // TODO currently hardcoded
-            name: "shrs".into(),
+            name: "tgs".into(),
             // TODO currently unused (since we have not implemented functions etc)
             args: vec![],
             exit_status: 0,

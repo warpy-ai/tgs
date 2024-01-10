@@ -85,7 +85,7 @@ impl DefaultMenu {
     }
 
     // TODO make these configurable?
-    fn selected_style(&self, out: &mut Out) -> crossterm::Result<()> {
+    fn selected_style(&self, out: &mut Out) -> std::io::Result<()> {
         execute!(
             out,
             SetBackgroundColor(Color::White),
@@ -94,12 +94,12 @@ impl DefaultMenu {
         Ok(())
     }
 
-    fn unselected_style(&self, out: &mut Out) -> crossterm::Result<()> {
+    fn unselected_style(&self, out: &mut Out) -> std::io::Result<()> {
         execute!(out, ResetColor)?;
         Ok(())
     }
 
-    fn comment_style(&self, out: &mut Out) -> crossterm::Result<()> {
+    fn comment_style(&self, out: &mut Out) -> std::io::Result<()> {
         execute!(out, SetForegroundColor(Color::Yellow),)?;
         Ok(())
     }
@@ -253,6 +253,6 @@ fn truncate(s: &str, max_chars: usize) -> String {
             let mut truncated = s[..idx.saturating_sub(3)].to_string();
             truncated.push_str("...");
             truncated
-        },
+        }
     }
 }

@@ -11,12 +11,12 @@ use crossterm::{
     style::{Color, ContentStyle},
     terminal::{disable_raw_mode, enable_raw_mode},
 };
-use shrs_vi::{Action, Command, Motion, Parser};
 use tgs_core::shell::{Context, Runtime, Shell};
 use tgs_services::{
     cursor_buffer::{CursorBuffer, Location},
     styled_buf::StyledBuf,
 };
+use tgs_vi::{Action, Command, Motion, Parser};
 
 use crate::{painter::Painter, prelude::*};
 

@@ -40,7 +40,7 @@ impl Default for Painter {
 
 impl Painter {
     /// Clear screen and move prompt to the top
-    pub fn init(&mut self) -> crossterm::Result<()> {
+    pub fn init(&mut self) -> std::io::Result<()> {
         self.prompt_line = 0;
         self.num_newlines = 0;
         self.term_size = terminal::size()?;
@@ -220,7 +220,7 @@ impl Painter {
         Ok(())
     }
 
-    pub fn newline(&mut self) -> crossterm::Result<()> {
+    pub fn newline(&mut self) -> std::io::Result<()> {
         self.out.borrow_mut().queue(Print("\r\n"))?;
         self.out.borrow_mut().flush()?;
         Ok(())

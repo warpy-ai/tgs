@@ -1,9 +1,7 @@
 //! Syntax highlighting
 
-use std::{collections::HashMap, usize};
-
 use crossterm::style::{Color, ContentStyle};
-use shrs_lang::{Lexer, Token};
+use tgs_lexer::{Lexer, Token};
 use tgs_services::styled_buf::StyledBuf;
 
 pub trait Highlighter {

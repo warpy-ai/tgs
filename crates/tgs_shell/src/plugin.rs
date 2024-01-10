@@ -1,7 +1,7 @@
 //! Plugin System
 
 use log::warn;
-use shrs_core::shell::{Context, Runtime, Shell};
+use tgs_core::shell::{Context, Runtime, Shell};
 
 use crate::ShellConfig;
 
@@ -24,7 +24,7 @@ impl Default for PluginMeta {
     fn default() -> Self {
         Self {
             name: String::from("unnamed plugin"),
-            description: String::from("a plugin for shrs"),
+            description: String::from("a plugin for tgs"),
         }
     }
 }
