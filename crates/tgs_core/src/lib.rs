@@ -1,4 +1,3 @@
-//! Core functionalities
 extern crate derive_builder;
 extern crate lazy_static;
 
@@ -19,8 +18,7 @@ pub mod state;
 pub mod theme;
 
 pub mod prelude {
-    //! Import commonly used types
-
+    // Import commonly used types
     pub use crate::{
         alias::{Alias, AliasInfo, AliasRule, AliasRuleCtx},
         builtin::{BuiltinCmd, Builtins},
@@ -39,7 +37,6 @@ pub mod prelude {
     };
 }
 
-/*
 #[cfg(test)]
 mod tests {
     use rexpect::session::PtySession;
@@ -74,4 +71,3 @@ mod tests {
         Ok(())
     }
 }
-*/

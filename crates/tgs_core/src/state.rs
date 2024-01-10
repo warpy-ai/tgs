@@ -1,7 +1,7 @@
 //! Globally accessible state store
 
 /// State store that uses types to index
-#[derive(Default)]
+
 pub struct State {
     store: anymap::Map,
 }

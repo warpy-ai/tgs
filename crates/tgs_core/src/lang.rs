@@ -1,6 +1,4 @@
 //! Abstraction for the shell language interpreter
-//!
-//!
 
 use crate::{
     cmd_output::CmdOutput,

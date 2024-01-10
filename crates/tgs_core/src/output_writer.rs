@@ -7,7 +7,7 @@ use crossterm::{
     style::{Color, Print, PrintStyledContent, Stylize},
     QueueableCommand,
 };
-use shrs_utils::styled_buf::StyledBuf;
+use tgs_services::styled_buf::StyledBuf;
 
 pub struct OutputWriter {
     stdout: BufWriter<std::io::Stdout>,

@@ -1,15 +1,5 @@
 //! Shell aliasing
 //!
-//! ```
-//! # use shrs_core::prelude::*;
-//! let alias = Alias::from_iter([
-//!     ("l", "ls"),
-//!     ("c", "cd"),
-//!     ("g", "git"),
-//!     ("v", "vim"),
-//!     ("la", "ls -a"),
-//! ]);
-//! ```
 
 use multimap::MultiMap;
 
