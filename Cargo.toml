@@ -1,7 +1,14 @@
 workspace = { members = [
-    "crates/tgs_colors", "crates/tgs_command", "crates/tgs_core", "crates/tgs_lexer",
-    "crates/tgs_prompt", "crates/tgs_readline", "crates/tgs_services",
-    "crates/tgs_setup", "crates/tgs_utils", "crates/tgs_vi",
+    "crates/tgs_colors",
+    "crates/tgs_command",
+    "crates/tgs_core",
+    "crates/tgs_lexer",
+    "crates/tgs_prompt",
+    "crates/tgs_readline",
+    "crates/tgs_services",
+    "crates/tgs_setup",
+    "crates/tgs_utils",
+    "crates/tgs_vi",
 ] }
 [package]
 name = "tgs"
@@ -20,6 +27,7 @@ tgs_welcome = { path = 'crates/tgs_welcome' }
 tgs_login = { path = 'crates/tgs_login' }
 tgs_setup = { path = 'crates/tgs_setup' }
 tgs_prompt = { path = 'crates/tgs_prompt' }
+dirs = "5"
 colored = "2.0.0"
 rand = "0.8.5"
 chrono = "0.4.19"

@@ -39,7 +39,7 @@ pub fn startup_hook(
     _sh_rt: &mut Runtime,
     _ctx: &StartupCtx,
 ) -> anyhow::Result<()> {
-    println!("welcome to shrs!");
+    println!("welcome to tgs!");
     Ok(())
 }
 
@@ -162,11 +162,11 @@ impl Hooks {
         match self.hooks.get_mut::<Vec<HookFn<C>>>() {
             Some(hook_list) => {
                 hook_list.push(hook);
-            },
+            }
             None => {
                 // register any empty vector for the type
                 self.hooks.insert::<Vec<HookFn<C>>>(vec![hook]);
-            },
+            }
         };
     }
 

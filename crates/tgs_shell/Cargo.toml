@@ -23,4 +23,8 @@ tgs_core = { path = "../tgs_core" }
 tgs_utils = { path = "../tgs_utils" }
 tgs_lexer = { path = "../tgs_lexer" }
 tgs_readline = { path = "../tgs_readline" }
+tgs_services = { path = "../tgs_services" }
 tgs_vi = { path = "../tgs_vi" }
+crossterm = "0.27.0"
+log = "0.4"
+anyhow = "1"

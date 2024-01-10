@@ -1,8 +1,7 @@
 //! Shell configuration options
 
-use std::{cell::RefCell, default, process::ExitStatus, time::Instant};
+use std::{cell::RefCell, process::ExitStatus, time::Instant};
 
-use ::crossterm::style::Color;
 use log::{info, warn};
 use tgs_core::prelude::*;
 use tgs_lexer::PosixLang;

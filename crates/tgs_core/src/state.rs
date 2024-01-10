@@ -1,9 +1,15 @@
 //! Globally accessible state store
 
-/// State store that uses types to index
+use anymap::Map;
 
 pub struct State {
-    store: anymap::Map,
+    store: Map<dyn anymap::any::Any>,
+}
+
+impl Default for State {
+    fn default() -> Self {
+        State { store: Map::new() }
+    }
 }
 
 impl State {

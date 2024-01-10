@@ -1,15 +1,25 @@
+use std::fs;
 use std::io::{self};
-
 use tgs_handler;
-use tgs_prompt::terminal_prompt;
+use tgs_prompt::{terminal_prompt, MyPrompt};
 use tgs_setup;
-use tgs_shell;
+use tgs_shell::{
+    history::FileBackedHistory,
+    keybindings,
+    line::_core::shell::set_working_dir,
+    prelude::{cursor_buffer::CursorBuffer, styled_buf::StyledBuf, *},
+};
 use tgs_t5_finetunned;
 use tokio::runtime;
 
 fn main() {
     let path = std::env::var("PATH").unwrap();
-    tgs_welcome::display_welcome_message();
+    let startup_msg: HookFn<StartupCtx> =
+        |_sh: &Shell,
+         _sh_ctx: &mut Context,
+         _sh_rt: &mut Runtime,
+         _ctx: &StartupCtx|
+         -> anyhow::Result<()> { Ok(tgs_welcome::display_welcome_message()) };
     let runtime = runtime::Runtime::new().unwrap();
 
     let config = tgs_setup::TgsSetup::new();
@@ -18,73 +28,34 @@ fn main() {
         Err(e) => eprintln!("Error setting up TGS: {}", e),
     }
 
-    loop {
-        // 1. Print a prompt.
-        terminal_prompt();
+    let prompt = MyPrompt;
+    let menu = DefaultMenu::default();
 
-        // 2. Read a line of input.
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).unwrap();
-        let input = input.trim(); // Trim whitespace
+    let readline = LineBuilder::default()
+        .with_menu(menu)
+        .with_prompt(prompt)
+        .build()
+        .expect("Could not construct readline");
 
-        // 4. Execute the command using tgs_handler.
-        let value: Vec<&str> = input.split(" ").collect();
+    let mut hooks = Hooks::new();
+    hooks.insert(startup_msg);
 
-        let bin = tgs_handler::find_binary(value[0], &path);
+    let config_dir = dirs::home_dir().unwrap().as_path().join(".config/tgs");
+    fs::create_dir_all(config_dir.clone());
+    let history_file = config_dir.as_path().join("history");
+    let history = FileBackedHistory::new(history_file).expect("Could not open history file");
 
-        // 5. Execute the command using tgs_shell
-        match bin {
-            Ok(command_type) => {
-                match runtime.block_on(tgs_shell::execute(command_type, &value[1..])) {
-                    Ok(exit_status) => {
-                        if !exit_status.success() {
-                            eprintln!("Command exited with status: {}", exit_status);
-                        }
-                    }
-                    Err(e) => {
-                        eprintln!("Error: {}", e);
-                    }
-                }
-            }
-            Err(e) => {
-                // If we didn't find the command, let's see if tgs_t5_finetunned can infer one
-                let command_str = value.join(" ");
-                match tgs_t5_finetunned::from_py::execute(&command_str) {
-                    Ok(inferred_cmd) => {
-                        // Now, you'd need to split the inferred command into the binary and arguments
-                        // For simplicity, let's assume the inferred command is just a binary name, similar to your initial input
-                        // (You might need to modify this to handle complex commands)
-                        let inferred_bin = tgs_handler::find_binary(&inferred_cmd, &path);
-                        println!("Inferred command: {}", inferred_cmd);
-                        match inferred_bin {
-                            Ok(inferred_bin_path) => {
-                                match runtime
-                                    .block_on(tgs_shell::execute(inferred_bin_path, &value[1..]))
-                                {
-                                    Ok(exit_status) => {
-                                        if !exit_status.success() {
-                                            eprintln!(
-                                                "Command exited with status: {}",
-                                                exit_status
-                                            );
-                                        }
-                                    }
-                                    Err(e) => {
-                                        eprintln!("Error: {}", e);
-                                    }
-                                }
-                            }
-                            Err(err) => eprintln!("Error after inference: {}", err),
-                        }
-                    }
-                    Err(err) => eprintln!("Inference error: {}", err),
-                }
-                eprintln!("Error {}", e)
-            }
-        }
-    }
+    let shell = ShellBuilder::default()
+        .with_hooks(hooks)
+        .with_readline(readline)
+        .with_history(history)
+        .build()
+        .expect("Could not construct shell");
+
+    shell.run();
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use duct::cmd;
@@ -120,3 +91,4 @@ mod tests {
         assert!(output.contains("tgs> "));
     }
 }
+*/
