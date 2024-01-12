@@ -1,7 +1,7 @@
 use std::fs;
 use std::io::{self};
 use tgs_handler;
-use tgs_prompt::{terminal_prompt, MyPrompt};
+use tgs_prompt::MyPrompt;
 use tgs_setup;
 use tgs_shell::{
     history::FileBackedHistory,
