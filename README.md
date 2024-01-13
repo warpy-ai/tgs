@@ -144,3 +144,9 @@ Feel free to customize the README further to match the specific features, instal
 ### For Mac.
 
 In case of running into `torch-sys` error refer to this [solution](https://github.com/LaurentMazare/tch-rs/issues/488#issuecomment-1664261286)
+
+## Contributors
+
+<a href="https://github.com/warpy-ai/tgs/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=warpy-ai/tgs" />
+</a>
