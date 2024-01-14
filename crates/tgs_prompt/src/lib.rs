@@ -7,7 +7,7 @@ use tgs_colors::{custom, return_color_text};
 use tgs_readline::prelude::*;
 use tgs_services::{styled, styled_buf::StyledBuf};
 mod loading_indicator;
-pub struct MyPrompt;
+pub struct TGSPrompt;
 
 fn git_prompt() -> StyledBuf {
     let git_branch = Command::new("git")
@@ -34,7 +34,7 @@ fn git_prompt() -> StyledBuf {
     }
 }
 
-impl Prompt for MyPrompt {
+impl Prompt for TGSPrompt {
     fn prompt_left(&self, line_ctx: &LineCtx) -> StyledBuf {
         let current_dir = env::current_dir().unwrap();
         let home_dir = dirs::home_dir().expect("Could not find home directory");

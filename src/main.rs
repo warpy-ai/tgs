@@ -1,7 +1,7 @@
 use std::fs;
 use std::io::{self};
 use tgs_handler;
-use tgs_prompt::MyPrompt;
+use tgs_prompt::TGSPrompt;
 use tgs_setup;
 use tgs_shell::{
     history::FileBackedHistory,
@@ -28,7 +28,7 @@ fn main() {
         Err(e) => eprintln!("Error setting up TGS: {}", e),
     }
 
-    let prompt = MyPrompt;
+    let prompt = TGSPrompt;
     let menu = DefaultMenu::default();
 
     let readline = LineBuilder::default()
