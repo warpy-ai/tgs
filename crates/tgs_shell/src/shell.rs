@@ -269,10 +269,13 @@ fn run_shell(
             let output = sh.lang.eval(sh, ctx, rt, line.clone());
             match output {
                 Ok(o) => cmd_output = o,
-                Err(e) => eprintln!("error: {e:?}"),
+                Err(e) => {
+                    eprintln!("error: {e:?}")
+                }
             }
         }
         let (out, err) = ctx.out.end_collecting();
+
         cmd_output.set_output(out, err);
         let _ = sh.hooks.run(
             sh,

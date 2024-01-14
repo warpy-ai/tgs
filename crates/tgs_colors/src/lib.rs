@@ -1,46 +1,41 @@
-use colored::Colorize;
-use colored::*;
+use crossterm::style::{Color, ResetColor, SetForegroundColor, StyledContent, Stylize};
+use crossterm::ExecutableCommand;
+use std::io::{stdout, Write};
 
 pub mod custom {
-    use super::*;
+    use crossterm::style::Color;
 
-    pub const PURPLE: Color = Color::TrueColor {
+    pub const PURPLE: Color = Color::Rgb {
         r: 122,
         g: 114,
         b: 229,
     };
-
-    pub const DARK_BLUE: Color = Color::TrueColor {
+    pub const DARK_BLUE: Color = Color::Rgb {
         r: 20,
         g: 94,
         b: 152,
     };
-
-    pub const DARK_PINK: Color = Color::TrueColor {
+    pub const DARK_PINK: Color = Color::Rgb {
         r: 171,
         g: 87,
         b: 151,
     };
-
-    pub const DARK_WHITE: Color = Color::TrueColor {
+    pub const DARK_WHITE: Color = Color::Rgb {
         r: 218,
         g: 208,
         b: 192,
     };
-
-    pub const CYAN: Color = Color::TrueColor {
+    pub const CYAN: Color = Color::Rgb {
         r: 0,
         g: 255,
         b: 255,
     };
-
-    pub const MAGENTA: Color = Color::TrueColor {
+    pub const MAGENTA: Color = Color::Rgb {
         r: 255,
         g: 0,
         b: 255,
     };
-
-    pub const ORANGE: Color = Color::TrueColor {
+    pub const ORANGE: Color = Color::Rgb {
         r: 255,
         g: 165,
         b: 0,
@@ -55,45 +50,32 @@ pub fn display_gradient_text(text: &str, start_color: Color, end_color: Color) {
     for (i, line) in lines.iter().enumerate() {
         let gradient_ratio = i as f32 / lines.len() as f32;
         let blended_color = blend_color(start_color, end_color, gradient_ratio);
-        println!("{}", line.color(blended_color));
+        let mut stdout = stdout();
+        stdout.execute(SetForegroundColor(blended_color)).unwrap();
+        writeln!(stdout, "{}", line).unwrap();
+        stdout.execute(ResetColor).unwrap();
     }
 }
 
 pub fn display_color_text(text: &str, color: Color) {
-    println!("{}", text.color(color));
+    let mut stdout = stdout();
+    stdout.execute(SetForegroundColor(color)).unwrap();
+    writeln!(stdout, "{}", text).unwrap();
+    stdout.execute(ResetColor).unwrap();
 }
 
-pub fn return_color_text(text: &str, color: Color) -> String {
-    text.color(color).to_string()
-}
-
-pub fn return_gradient_color_text(text: &str, color_init: Color, color_end: Color) -> String {
-    let lines: Vec<&str> = text.lines().collect();
-    let mut gradient_text = String::new();
-
-    // Apply gradient to each line
-    for (i, line) in lines.iter().enumerate() {
-        let gradient_ratio = i as f32 / lines.len() as f32;
-        let blended_color = blend_color(color_init, color_end, gradient_ratio);
-        gradient_text.push_str(&line.color(blended_color).to_string());
-
-        // Add a newline character for all but the last line
-        if i < lines.len() - 1 {
-            gradient_text.push('\n');
-        }
-    }
-
-    gradient_text
+pub fn return_color_text(text: &str, color: Color) -> StyledContent<String> {
+    String::from(text).with(color)
 }
 
 pub fn blend_color(start: Color, end: Color, ratio: f32) -> Color {
     if let (
-        Color::TrueColor {
+        Color::Rgb {
             r: r1,
             g: g1,
             b: b1,
         },
-        Color::TrueColor {
+        Color::Rgb {
             r: r2,
             g: g2,
             b: b2,
@@ -103,13 +85,12 @@ pub fn blend_color(start: Color, end: Color, ratio: f32) -> Color {
         let blended_r = blend_value(r1, r2, ratio);
         let blended_g = blend_value(g1, g2, ratio);
         let blended_b = blend_value(b1, b2, ratio);
-        Color::TrueColor {
+        Color::Rgb {
             r: blended_r,
             g: blended_g,
             b: blended_b,
         }
     } else {
-        // Fallback to a default color if not TrueColor
         Color::White
     }
 }
@@ -121,15 +102,27 @@ fn blend_value(start: u8, end: u8, ratio: f32) -> u8 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crossterm::style::Color;
 
     #[test]
-    fn it_works() {
-        let text = "Hello, World!";
+    fn test_display_color_text() {
+        display_color_text("Hello, World!", Color::Green);
+        // Add more tests for different scenarios
+    }
+
+    #[test]
+    fn test_blend_color() {
         let start_color = Color::Red;
         let end_color = Color::Blue;
-        display_gradient_text(text, start_color, end_color);
-        display_color_text(text, Color::Green);
         let blended_color = blend_color(start_color, end_color, 0.5);
-        println!("{:?}", blended_color);
+        assert_eq!(
+            blended_color,
+            Color::Rgb {
+                r: 128,
+                g: 0,
+                b: 128
+            }
+        );
+        // Add more tests for different scenarios
     }
 }

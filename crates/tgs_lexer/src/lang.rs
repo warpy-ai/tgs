@@ -3,9 +3,9 @@ use tgs_core::{
     prelude::{CmdOutput, CommandNotFoundCtx},
     shell::{Context, Runtime, Shell},
 };
+use tgs_t5_finetunned::from_py::execute;
 use tgs_utils::initialize_job_control;
 use thiserror::Error;
-
 // use crate::eval::{command_output, eval_command},
 use crate::{eval, parser, Lexer, Parser, Token};
 
@@ -50,14 +50,26 @@ impl Lang for PosixLang {
         line: String,
     ) -> anyhow::Result<CmdOutput> {
         // TODO rewrite the error
+        // tgs-t5_finetunned should be implemented here
         let lexer = Lexer::new(&line);
         let parser = Parser::default();
         let cmd = match parser.parse(lexer) {
             Ok(cmd) => cmd,
             Err(e) => {
-                // TODO detailed parse errors
-                eprintln!("parse error: {e}");
-                return Err(e.into());
+                // first eval error, we want to pass the instruction trough tgs_t5_finetunned
+                // this will allow us inferr with the AI
+                // Hopefully we will be able to execute a command
+                // let result = execute(&line);
+                match execute(&line) {
+                    Ok(new_command) => match parser.parse(Lexer::new(&new_command)) {
+                        Ok(cmd) => cmd,
+                        Err(_) => return Err(e.into()),
+                    },
+                    Err(_) => {
+                        // If tgs_t5_finetunned also fails, return the original parse error
+                        return Err(e.into());
+                    }
+                }
             }
         };
 

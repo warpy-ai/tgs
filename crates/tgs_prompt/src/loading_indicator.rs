@@ -1,4 +1,4 @@
-use colored::*;
+use crossterm::style::{Color, ResetColor, SetForegroundColor};
 use std::io;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
