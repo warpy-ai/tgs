@@ -1,23 +1,41 @@
+import os
 import torch
-from transformers import T5ForConditionalGeneration
-from transformers import T5Tokenizer
+from transformers import T5ForConditionalGeneration, T5Tokenizer
 
 
-# Replace "t5-small" with the appropriate model size you fine-tuned
-model = T5ForConditionalGeneration.from_pretrained("model")
+def load_model():
+    # Get the directory where the script is located
+    base_path = os.path.dirname(os.path.abspath(__file__))
 
+    # The model directory is in the same parent directory as the script
+    # Adjust this to the correct relative path
+    relative_model_path = "crates/tgs_t5_finetunned/model"
 
-model.load_state_dict(torch.load(
-    "model/pytorch_model.bin", map_location=torch.device('cpu')))
-model.eval()  # Set the model to evaluation mode
+    # Construct the absolute path to the model directory
+    model_path = os.path.join(base_path, relative_model_path)
 
+    # Load the model from the specified path
+    model = T5ForConditionalGeneration.from_pretrained(model_path)
 
-# Load tokenizer
-tokenizer = T5Tokenizer.from_pretrained("model")
+    # Load the model weights
+    model.load_state_dict(torch.load(
+        os.path.join(model_path, "pytorch_model.bin"),
+        map_location=torch.device('cpu')))
+
+    # Set the model to evaluation mode
+    model.eval()
+
+    # Load tokenizer
+    tokenizer = T5Tokenizer.from_pretrained(model_path)
+
+    return model, tokenizer
 
 
 def generate_answer(input_text, max_length=50):
-    model.eval()  # Ensure the model is in evaluation mode
+    model, tokenizer = load_model()  # Load the model and tokenizer
+
+    # Ensure the model is in evaluation mode
+    model.eval()
 
     # Tokenize the input text
     input_ids = tokenizer.encode(input_text, return_tensors="pt")

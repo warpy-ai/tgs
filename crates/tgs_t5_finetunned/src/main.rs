@@ -3,8 +3,9 @@ use from_py::execute;
 
 fn main() {
     // TODO: Use lib function return_command and check returned value
-    println!("Command: {}", "Prints sorted list of logged in users.");
-    let result = execute("list all files in this directory");
+    let test_command = "list all mp3 files in the current";
+    println!("Command: {}", test_command);
+    let result = execute(test_command);
 
     println!("Translation result: {:?}", result);
 }
