@@ -77,10 +77,34 @@ impl Lang for PosixLang {
         let (procs, pgid) = match eval::eval_command(&mut job_manager, &cmd, None, None) {
             Ok((procs, pgid)) => (procs, pgid),
             Err(PosixError::CommandNotFound(_)) => {
-                sh.hooks.run(sh, ctx, rt, CommandNotFoundCtx {});
-                return Ok(CmdOutput::error_with_status(127));
+                match execute(&line) {
+                    Ok(new_command) => {
+                        match parser.parse(Lexer::new(&new_command)) {
+                            Ok(new_cmd) => {
+                                // Re-attempt to execute the new command
+                                match eval::eval_command(&mut job_manager, &new_cmd, None, None) {
+                                    Ok((procs, pgid)) => (procs, pgid),
+                                    Err(_) => {
+                                        sh.hooks.run(sh, ctx, rt, CommandNotFoundCtx {});
+                                        return Ok(CmdOutput::error_with_status(127));
+                                    }
+                                }
+                            }
+                            Err(new_parse_error) => {
+                                return Err(new_parse_error.into());
+                            }
+                        }
+                    }
+                    Err(ai_error) => {
+                        sh.hooks.run(sh, ctx, rt, CommandNotFoundCtx {});
+                        return Ok(CmdOutput::error_with_status(127));
+                    }
+                }
             }
-            _ => return Ok(CmdOutput::error()),
+            Err(other_error) => {
+                eprintln!("Execution error: {:?}", other_error);
+                return Ok(CmdOutput::error());
+            }
         };
 
         eval::run_job(&mut job_manager, procs, pgid, true)?;
