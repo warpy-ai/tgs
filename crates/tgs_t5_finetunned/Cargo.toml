@@ -25,3 +25,6 @@ anyhow = "1.0"
 ndarray = "0.15.6"
 tokenizers = "0.15.0"
 pyo3 = "0.20.2"
+dialoguer = "0.11.0"
+tgs_loader = { path = "../tgs_loader" }
+tgs_colors = { path = "../tgs_colors" }
