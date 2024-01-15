@@ -1,31 +1,36 @@
-use dialoguer::{theme::ColorfulTheme, Confirm, Select};
+use dialoguer::{theme::ColorfulTheme, Select};
 use pyo3::{prelude::*, types::PyModule};
 use std::{env, fs};
 use tgs_colors::custom;
 use tgs_loader::LoadingIndicator;
 
 fn call_dialoger(result: String) -> String {
-    let prompt = format!("Are you sure you want to run {}?", result);
+    let multiselected = &[
+        "\u{1f680} Execute command",
+        "\u{270f} Edit and execute command",
+        "\u{2718} Cancel",
+    ];
 
     let theme = ColorfulTheme::default();
-
     let selection = Select::with_theme(&theme)
-        .with_prompt(prompt)
-        .default(0)
-        .item("yes")
-        .item("no")
-        .interact()
+        .with_prompt(result.clone())
+        .items(&multiselected[..])
+        .interact_opt()
         .unwrap();
 
-    if selection == 0 {
-        result
+    if let Some(selection) = selection {
+        if selection == 0 {
+            result
+        } else {
+            String::from("TODO")
+        }
     } else {
-        String::new()
+        String::from("TODO")
     }
 }
 
 pub fn execute(input_text: &str) -> PyResult<String> {
-    let loader = LoadingIndicator::new(custom::CYAN);
+    let loader = LoadingIndicator::new(custom::DARK_WHITE);
     pyo3::prepare_freethreaded_python();
     // Construct the absolute path to the Python script
     let mut script_path = env::current_exe()?;
@@ -36,8 +41,7 @@ pub fn execute(input_text: &str) -> PyResult<String> {
     // Now script_path should point to the project root
     script_path.push("crates/tgs_t5_finetunned/inference_model.py"); // Navigate to the script
 
-    println!("Generating script for: {:?}", input_text);
-    loader.start();
+    loader.start(input_text);
     Python::with_gil(|py| {
         let code = fs::read_to_string(script_path)?;
 
