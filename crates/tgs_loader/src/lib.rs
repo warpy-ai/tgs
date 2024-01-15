@@ -1,10 +1,10 @@
 use crossterm::style::{Color, ResetColor, SetForegroundColor};
-use std::io;
-use std::io::Write;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 use tgs_colors::custom;
+
+use indicatif::{ProgressBar, ProgressStyle};
 
 /// A `LoadingIndicator` handles the animation of a loading indicator.
 pub struct LoadingIndicator {
@@ -35,27 +35,26 @@ impl LoadingIndicator {
     /// `start()` spawn a new thread and display the loading indicator.
     /// It ends when `stop()` is called.
     pub fn start(&self) {
-        let is_running = self.is_running.clone();
-        *is_running.lock().unwrap() = true;
-        let color_code = self.color;
-
-        thread::spawn(move || {
-            let spinner_chars = vec!['|', '/', '-', '\\'];
-            let mut index = 0;
-
-            println!("{:?}", color_code); // Sets color.
-            while *is_running.lock().unwrap() {
-                print!("\r{}", spinner_chars[index]);
-                io::stdout().flush().unwrap();
-
-                index = (index + 1) % spinner_chars.len();
-
-                thread::sleep(Duration::from_millis(100));
-            }
-
-            println!();
-            io::stdout().flush().unwrap();
-        });
+        let pb = ProgressBar::new_spinner();
+        pb.enable_steady_tick(Duration::from_millis(120));
+        pb.set_style(
+            ProgressStyle::with_template("{spinner:.blue} {msg}")
+                .unwrap()
+                // For more spinners check out the cli-spinners project:
+                // https://github.com/sindresorhus/cli-spinners/blob/master/spinners.json
+                .tick_strings(&[
+                    "▹▹▹▹▹",
+                    "▸▹▹▹▹",
+                    "▹▸▹▹▹",
+                    "▹▹▸▹▹",
+                    "▹▹▹▸▹",
+                    "▹▹▹▹▸",
+                    "▪▪▪▪▪",
+                ]),
+        );
+        pb.set_message("Calculating...");
+        thread::sleep(Duration::from_secs(5));
+        pb.finish_with_message("Done");
     }
 
     /// `stop()` stops the loading indicator.

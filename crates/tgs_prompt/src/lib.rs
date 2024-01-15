@@ -6,7 +6,6 @@ use std::process::Command;
 use tgs_colors::{custom, return_color_text};
 use tgs_readline::prelude::*;
 use tgs_services::{styled, styled_buf::StyledBuf};
-mod loading_indicator;
 pub struct TGSPrompt;
 
 fn git_prompt() -> StyledBuf {
