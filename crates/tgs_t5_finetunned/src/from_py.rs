@@ -12,7 +12,7 @@ pub fn execute(input_text: &str) -> PyResult<String> {
     // Now script_path should point to the project root
     script_path.push("crates/tgs_t5_finetunned/inference_model.py"); // Navigate to the script
 
-    println!("Script path: {:?}", input_text);
+    println!("Generating script for: {:?}", input_text);
     Python::with_gil(|py| {
         let code = fs::read_to_string(script_path)?;
 
@@ -23,7 +23,6 @@ pub fn execute(input_text: &str) -> PyResult<String> {
             .call1((input_text,))?
             .extract();
 
-        println!("Answer: {:?}", result);
         result
     })
 }
