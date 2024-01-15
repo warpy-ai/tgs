@@ -22,6 +22,8 @@ fn call_dialoger(result: String) -> String {
         if selection == 0 {
             result
         } else {
+            //TODO allow user to edit the command
+            //TODO send edited command to server for model improvement
             String::from("TODO")
         }
     } else {
