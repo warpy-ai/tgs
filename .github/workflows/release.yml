@@ -85,12 +85,16 @@ jobs:
         shell: bash
         run: echo "VERSION=$\{GITHUB_REF#refs/tags/\}" >> $GITHUB_ENV
 
+      - name: Update Cargo.toml version
+        run: |
+          sed -i "s/^version = \".*\"/version = \"${{ env.VERSION }}\"/" Cargo.toml
+
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           use-cross: true
           command: build
-          args: --verbose --release --target $\{\{ matrix.target \}\}
+          args: --verbose --release --target ${{ matrix.target }}
 
       - name: Build archive
         shell: bash
@@ -98,15 +102,15 @@ jobs:
           # Replace with the name of your binary
           binary_name="<BINARY_NAME>"
 
-          dirname="$binary_name-$\{\{ env.VERSION \}\}-$\{\{ matrix.target \}\}"
+          dirname="$binary_name-${{ env.VERSION }}-${{ matrix.target }}"
           mkdir "$dirname"
-          if [ "$\{\{ matrix.os \}\}" = "windows-latest" ]; then
-              mv "target/$\{\{ matrix.target \}\}/release/$binary_name.exe" "$dirname"
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            mv "target/${{ matrix.target }}/release/$binary_name.exe" "$dirname"
           else
-              mv "target/$\{\{ matrix.target \}\}/release/$binary_name" "$dirname"
+            mv "target/${{ matrix.target }}/release/$binary_name" "$dirname"
           fi
 
-          if [ "$\{\{ matrix.os \}\}" = "windows-latest" ]; then
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
               7z a "$dirname.zip" "$dirname"
               echo "ASSET=$dirname.zip" >> $GITHUB_ENV
           else
@@ -118,4 +122,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            $\{\{ env.ASSET \}\}
+            ${{ env.ASSET }}
