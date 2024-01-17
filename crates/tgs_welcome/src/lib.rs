@@ -2,22 +2,22 @@ use sysinfo::System;
 use tgs_colors::{blend_color, custom, display_color_text, display_gradient_text};
 
 fn display_neon_art_with_gradient() {
-    let ascii_art = r#"
-************************
-************************
-************************
-**   .--.             **
-**   |__| .-------.   **
-**   |=.| |.-----.|   **
-**   |--| || TGS ||   **
-**   |  | |'-----'|   **
-**   |__|~')_____('   **
-************************
-************************
-************************
-
-
-========================
+    let ascii_art2 = r#"
+:-++++++++++++++++++++++:.
+.-%@%@@@%%%%%%%%%%@@@%@%-.
+.-%@@@#*++++++++++**@@@%-.
+.-%@@@-%=::::::::-%-@@@%-.
+.-%@@@-%+@@*----+=%-@@@%-.
+.-%@**-%+@*#%#+%+=%-#*@%-.
+.-%@**@%+@+*##=@%#@-#*@%-.
+.-%@**-%+@+*+*=@@+%=#*@%-.
+.-%@**-%+@%%@%=%+=%-#*@%-.
+.-%@**-%+@#%@%=%+=%-#*@%-.
+.-%@%%-%=---+@@%+=%-#*@%-.
+.-%@@@*======#@%+=%+%#@%-.
+.-%@%%@#*+++++++*=%@@%@%-.
+.-%@@@@@@@@@@@@@@@@@@@@%-.
+:------------------------.
     "#;
 
     // Define gradient colors
@@ -25,7 +25,7 @@ fn display_neon_art_with_gradient() {
     let end_color = custom::CYAN; // Cyan
 
     // Split the art into lines
-    let lines: Vec<&str> = ascii_art.lines().collect();
+    let lines: Vec<&str> = ascii_art2.lines().collect();
 
     // Apply gradient to each line
     for (i, line) in lines.iter().enumerate() {
