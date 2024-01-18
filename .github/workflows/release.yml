@@ -81,13 +81,17 @@ jobs:
           # Make Rust compile to our target (defined in the matrix)
           targets: ${{ matrix.target }}
 
-      - name: Get the release version from the tag
-        shell: bash
-        run: echo "VERSION=$\{GITHUB_REF#refs/tags/\}" >> $GITHUB_ENV
+      - name: Extract version
+        run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
+        env:
+          GITHUB_REF: ${{ github.ref }}
 
       - name: Update Cargo.toml version
-        run: |
-          sed -i "s/^version = \".*\"/version = \"${{ env.VERSION }}\"/" Cargo.toml
+        run: sed -i "s/^version = \".*\"/version = \"${{ env.VERSION }}\"/" Cargo.toml
+        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+        env:
+          CARGO_INCREMENTAL: 0
+          CARGO_TERM_COLOR: always
 
       - name: Build
         uses: actions-rs/cargo@v1
