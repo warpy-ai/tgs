@@ -73,6 +73,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x" # Specify the version of Python you need
+
+      # Set any required environment variables here
+      - name: Set environment variables
+        run: |
+          echo "PYO3_PYTHON=python" >> $GITHUB_ENV
+          # Set other environment variables if necessary
+
       - name: Install Rust
         # Or @nightly if you want
         uses: dtolnay/rust-toolchain@stable
