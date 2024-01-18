@@ -92,6 +92,7 @@ jobs:
         shell: bash
 
       - name: Update Cargo.toml version (Windows)
+        if: runner.os == 'Windows'
         run: (Get-Content Cargo.toml) -replace '^version = \".*\"', 'version = "${{ env.VERSION }}"' | Set-Content Cargo.toml
         shell: pwsh
 
