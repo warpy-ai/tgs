@@ -93,6 +93,13 @@ jobs:
           CARGO_INCREMENTAL: 0
           CARGO_TERM_COLOR: always
 
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --verbose --release --target ${{ matrix.target }}
+
       - name: Build archive
         shell: bash
         run: |
