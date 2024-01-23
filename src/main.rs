@@ -1,26 +1,24 @@
 use std::fs;
-use std::io::{self};
-use tgs_handler;
+
+
 use tgs_prompt::TGSPrompt;
 use tgs_setup;
 use tgs_shell::{
     history::FileBackedHistory,
-    keybindings,
-    line::_core::shell::set_working_dir,
-    prelude::{cursor_buffer::CursorBuffer, styled_buf::StyledBuf, *},
+    prelude::{*},
 };
-use tgs_t5_finetunned;
+
 use tokio::runtime;
 
 fn main() {
-    let path = std::env::var("PATH").unwrap();
+    let _path = std::env::var("PATH").unwrap();
     let startup_msg: HookFn<StartupCtx> =
         |_sh: &Shell,
          _sh_ctx: &mut Context,
          _sh_rt: &mut Runtime,
          _ctx: &StartupCtx|
          -> anyhow::Result<()> { Ok(tgs_welcome::display_welcome_message()) };
-    let runtime = runtime::Runtime::new().unwrap();
+    let _runtime = runtime::Runtime::new().unwrap();
 
     let config = tgs_setup::TgsSetup::new();
     match config.setup() {

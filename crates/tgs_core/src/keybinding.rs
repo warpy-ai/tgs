@@ -114,7 +114,7 @@ fn parse_modifier(s: &str) -> Result<KeyModifiers, BindingFromStrError> {
 #[derive(Default)]
 pub struct DefaultKeybinding {
     // TODO this can't take closure right now
-    pub bindings: HashMap<Binding, (Box<BindingFn>)>,
+    pub bindings: HashMap<Binding, Box<BindingFn>>,
     pub info: HashMap<String, String>,
 }
 

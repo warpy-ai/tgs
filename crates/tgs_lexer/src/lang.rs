@@ -95,7 +95,7 @@ impl Lang for PosixLang {
                             }
                         }
                     }
-                    Err(ai_error) => {
+                    Err(_ai_error) => {
                         sh.hooks.run(sh, ctx, rt, CommandNotFoundCtx {});
                         return Ok(CmdOutput::error_with_status(127));
                     }
