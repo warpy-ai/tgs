@@ -4,7 +4,7 @@ use std::{
 };
 
 use crossterm::{
-    style::{Color, Print, PrintStyledContent, Stylize},
+    style::{Color, PrintStyledContent, Stylize},
     QueueableCommand,
 };
 use tgs_services::styled_buf::StyledBuf;
