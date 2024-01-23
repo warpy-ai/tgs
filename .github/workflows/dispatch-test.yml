@@ -79,13 +79,6 @@ jobs:
         env:
           GITHUB_REF: ${{ github.ref }}
 
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --verbose --release --target ${{ steps.set-vars.outputs.target }}
-
       - name: Release Tgs Binary
         run: bash .github/workflows/release-pkg.sh
         env:
@@ -97,25 +90,11 @@ jobs:
           _EXTRA_: ${{ steps.set-vars.outputs.extra }}
           TARGET_RUSTFLAGS: ${{ steps.set-vars.outputs.target_rustflags }}
 
-      - name: Build archive
-        shell: bash
-        run: |
-          binary_name="<BINARY_NAME>"
-          dirname="$binary_name-${{ steps.set-vars.outputs.target }}"
-          mkdir "$dirname"
-          if [ "${{ github.event.inputs.os }}" = "windows-latest" ]; then
-            mv "target/${{ steps.set-vars.outputs.target }}/release/$binary_name.exe" "$dirname"
-          else
-            mv "target/${{ steps.set-vars.outputs.target }}/release/$binary_name" "$dirname"
-          fi
-          if [ "${{ github.event.inputs.os }}" = "windows-latest" ]; then
-            7z a "$dirname.zip" "$dirname"
-            echo "ASSET=$dirname.zip" >> $GITHUB_ENV
-          else
-            tar -czf "$dirname.tar.gz" "$dirname"
-            echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
-
-      - name: Upload the binaries
-        uses: softprops/action-gh-release@v1
+      - name: Publish Archive
+        uses: softprops/action-gh-release@v0.1.15
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ${{ env.ASSET }}
+          draft: true
+          files: ./output/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

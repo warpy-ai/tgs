@@ -27,7 +27,7 @@ pub mod prelude {
         hooks::*,
         line::{Line, LineBuilder, LineBuilderError, LineCtx, LineMode, Readline},
         menu::{DefaultMenu, Menu},
-        prompt::{DefaultPrompt, Prompt, *},
+        prompt::{DefaultPrompt, Prompt},
         vi::*,
     };
 }

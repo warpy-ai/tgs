@@ -1,4 +1,4 @@
-use crossterm::style::{style, Color, Stylize};
+use crossterm::style::{style, Stylize};
 use dirs;
 use std::env;
 use std::path::PathBuf;
@@ -64,7 +64,7 @@ impl Prompt for TGSPrompt {
 
         styled! {pre,"  ", dir," ", git_prompt()," ", action, " "}
     }
-    fn prompt_right(&self, line_ctx: &LineCtx) -> StyledBuf {
+    fn prompt_right(&self, _line_ctx: &LineCtx) -> StyledBuf {
         styled!()
         // styled! {@(bold,blue)git_branch, " ", time_str, " ", lang, " "}
     }

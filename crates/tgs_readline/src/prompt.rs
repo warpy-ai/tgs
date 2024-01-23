@@ -1,6 +1,6 @@
 //! Shell prompt
 
-use crossterm::style::{ContentStyle, StyledContent};
+
 use tgs_services::{styled, styled_buf::StyledBuf};
 
 use crate::line::LineCtx;
