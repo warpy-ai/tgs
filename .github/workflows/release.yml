@@ -33,40 +33,51 @@ jobs:
           - target: aarch64-apple-darwin
             os: macos-latest
             target_rustflags: ""
+            python-version: "3.x"
           - target: x86_64-apple-darwin
             os: macos-latest
             target_rustflags: ""
+            python-version: "3.x"
           - target: x86_64-pc-windows-msvc
             extra: "bin"
             os: windows-latest
             target_rustflags: ""
+            python-version: "3.x"
           - target: x86_64-pc-windows-msvc
             extra: msi
             os: windows-latest
             target_rustflags: ""
+            python-version: "3.x"
           - target: aarch64-pc-windows-msvc
             extra: "bin"
             os: windows-latest
             target_rustflags: ""
+            python-version: "3.x"
           - target: aarch64-pc-windows-msvc
             extra: msi
             os: windows-latest
             target_rustflags: ""
+            python-version: "3.x"
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-20.04
             target_rustflags: ""
+            python-version: "3.x"
           - target: x86_64-unknown-linux-musl
             os: ubuntu-20.04
             target_rustflags: ""
+            python-version: "3.x"
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-20.04
             target_rustflags: ""
+            python-version: "3.x"
           - target: armv7-unknown-linux-gnueabihf
             os: ubuntu-20.04
             target_rustflags: ""
+            python-version: "3.x"
           - target: riscv64gc-unknown-linux-gnu
             os: ubuntu-latest
             target_rustflags: ""
+            python-version: "3.x"
 
     runs-on: ${{matrix.os}}
 
@@ -76,36 +87,21 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.x" # Specify the version of Python you need
+          python-version: ${{ matrix.python-version }}
 
-      # Set any required environment variables here
       - name: Set environment variables
         run: |
           echo "PYO3_PYTHON=python" >> $GITHUB_ENV
-          # Set other environment variables if necessary
 
       - name: Install Rust
-        # Or @nightly if you want
         uses: dtolnay/rust-toolchain@stable
-        # Arguments to pass in
         with:
-          # Make Rust compile to our target (defined in the matrix)
           targets: ${{ matrix.target }}
 
       - name: Extract version
         run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
         env:
           GITHUB_REF: ${{ github.ref }}
-
-      - name: Update Cargo.toml version (Unix)
-        if: runner.os != 'Windows'
-        run: sed -i'' -e "s/^version = \".*\"/version = \"${{ env.VERSION }}\"/" Cargo.toml
-        shell: bash
-
-      - name: Update Cargo.toml version (Windows)
-        if: runner.os == 'Windows'
-        run: (Get-Content Cargo.toml) -replace '^version = \".*\"', 'version = "${{ env.VERSION }}"' | Set-Content Cargo.toml
-        shell: pwsh
 
       - name: Build
         uses: actions-rs/cargo@v1
@@ -117,9 +113,7 @@ jobs:
       - name: Build archive
         shell: bash
         run: |
-          # Replace with the name of your binary
           binary_name="<BINARY_NAME>"
-
           dirname="$binary_name-${{ env.VERSION }}-${{ matrix.target }}"
           mkdir "$dirname"
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
@@ -127,17 +121,14 @@ jobs:
           else
             mv "target/${{ matrix.target }}/release/$binary_name" "$dirname"
           fi
-
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-              7z a "$dirname.zip" "$dirname"
-              echo "ASSET=$dirname.zip" >> $GITHUB_ENV
+            7z a "$dirname.zip" "$dirname"
+            echo "ASSET=$dirname.zip" >> $GITHUB_ENV
           else
-              tar -czf "$dirname.tar.gz" "$dirname"
-              echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
-          fi
+            tar -czf "$dirname.tar.gz" "$dirname"
+            echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
 
       - name: Upload the binaries
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            ${{ env.ASSET }}
+          files: ${{ env.ASSET }}
