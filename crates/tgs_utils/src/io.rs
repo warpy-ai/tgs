@@ -1,11 +1,11 @@
+use std::fs::File;
 #[cfg(unix)]
-use std::os::unix::io::RawFd;
-use std::{
-    fs::File,
-    os::fd::AsRawFd,
-    process::{ChildStdout, Stdio},
-};
+use std::os::unix::io::{AsRawFd, RawFd};
+#[cfg(windows)]
+use std::os::windows::io::{AsRawHandle, RawHandle};
+use std::process::{ChildStdout, Stdio};
 
+#[cfg(unix)]
 use nix::libc::STDIN_FILENO;
 
 #[derive(Debug)]
@@ -49,6 +49,16 @@ impl AsRawFd for Stdin {
             Stdin::File(f) => f.as_raw_fd(),
             Stdin::FileDescriptor(fd) => *fd,
             Stdin::Child(child) => child.as_raw_fd(),
+        }
+    }
+}
+
+#[cfg(windows)]
+impl AsRawHandle for Stdin {
+    fn as_raw_handle(&self) -> RawHandle {
+        match self {
+            // Implement Windows-specific functionality here
+            _ => unimplemented!(),
         }
     }
 }

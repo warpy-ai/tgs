@@ -13,8 +13,6 @@ on:
         type: choice
         options:
           - macos-latest
-          - windows-latest
-          - ubuntu-20.04
           - ubuntu-latest
 
 defaults:
