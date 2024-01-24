@@ -37,14 +37,17 @@ jobs:
           echo "::set-output name=target::x86_64-unknown-linux-gnu"
           echo "::set-output name=extra::"
           echo "::set-output name=target_rustflags::"
+          echo "::set-output name=bin_name::tgs"
           elif [ "${{ github.event.inputs.os }}" == "macos-latest" ]; then
           echo "::set-output name=target::x86_64-apple-darwin"
           echo "::set-output name=extra::"
           echo "::set-output name=target_rustflags::"
+          echo "::set-output name=bin_name::tgs"
           elif [ "${{ github.event.inputs.os }}" == "windows-latest" ]; then
           echo "::set-output name=target::x86_64-pc-windows-msvc"
           echo "::set-output name=extra::bin"
           echo "::set-output name=target_rustflags::"
+          echo "::set-output name=bin_name::tgs.exe"
           fi
 
       - name: Set up Python
@@ -78,9 +81,10 @@ jobs:
           GITHUB_REF: ${{ github.ref }}
 
       - name: Release Tgs Binary
+        id: tgs
         run: bash .github/workflows/release-pkg.sh
         env:
-          BIN_NAME: "tgs"
+          BIN_NAME: ${{ steps.set-vars.outputs.bin_name }}
           RELEASE_TYPE: standard
           OS: ${{ github.event.inputs.os }}
           REF: ${{ github.ref }}
@@ -93,6 +97,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           draft: true
-          files: ./output/*
+          files: ${{ steps.tgs.outputs.archive }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
