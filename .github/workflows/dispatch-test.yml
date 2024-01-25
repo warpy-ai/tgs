@@ -47,6 +47,14 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Setup Cross-Compilation for aarch64-unknown-linux-gnu
+        run: |
+          # Example commands (adjust as needed):
+          sudo apt-get update
+          sudo apt-get install -y python3-dev-aarch64-cross
+          export PYO3_CROSS_PYTHON_VERSION=3.x  # Replace with the specific version
+          export PYO3_CROSS_LIB_DIR=/path/to/python/libs  # Adjust the path as needed
+
       - name: Set environment variables
         run: |
           echo "PYO3_PYTHON=python" >> $GITHUB_ENV
