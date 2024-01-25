@@ -47,12 +47,6 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Setup Cross-Compilation for aarch64-unknown-linux-gnu
-        run: |
-          # Set up environment variables for cross-compilation
-          echo "PYO3_CROSS=1" >> $GITHUB_ENV
-          echo "PYO3_CROSS_PYTHON_VERSION=3.10" >> $GITHUB_ENV # Replace with your Python version
-
       - name: Set environment variables
         run: |
           echo "PYO3_PYTHON=python" >> $GITHUB_ENV
