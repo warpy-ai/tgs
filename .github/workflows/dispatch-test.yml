@@ -50,18 +50,26 @@ jobs:
       - name: Set environment variables
         run: |
           echo "PYO3_PYTHON=python" >> $GITHUB_ENV
+          # Dynamically determine the Python installation path
+          PYTHON_PATH=$(dirname $(which python))
+          echo "PYTHON_PATH=${PYTHON_PATH}" >> $GITHUB_ENV
 
       - name: Add Python to PATH
-        run: echo "$pythonLocation/bin" >> $GITHUB_PATH
+        run: echo "$PYTHON_PATH" >> $GITHUB_PATH
         env:
-          pythonLocation: /opt/hostedtoolcache/Python/3.10/x64
+          PYTHON_PATH: ${{ env.PYTHON_PATH }}
 
       - name: Setup Cross-Compilation for aarch64-unknown-linux-gnu
         run: |
-          # Set up environment variables for cross-compilation
           echo "PYO3_CROSS=1" >> $GITHUB_ENV
-          echo "PYO3_CROSS_PYTHON_VERSION=3.10" >> $GITHUB_ENV # Replace with your Python version
-          echo "PYO3_CROSS_LIB_DIR=/opt/hostedtoolcache/Python/3.10/x64/lib" >> $GITHUB_ENV
+          echo "PYO3_CROSS_PYTHON_VERSION=3.10" >> $GITHUB_ENV
+          # Dynamically set the Python library directory
+          echo "PYO3_CROSS_LIB_DIR=${PYTHON_PATH}/lib" >> $GITHUB_ENV
+          # Verify if the directory exists
+          if [ ! -d "$PYO3_CROSS_LIB_DIR" ]; then
+            echo "Python library directory for cross-compilation does not exist: $PYO3_CROSS_LIB_DIR"
+            exit 1
+          fi
 
       - name: Print debugging information
         run: |
