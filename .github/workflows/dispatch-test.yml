@@ -1,51 +1,46 @@
-#
-# REF:
-#   1. Nushell build strategy: https://github.com/nushell/nushell/blob/main/.github/workflows/release.yml
-#
-name: Build for Selected OS
+name: Build for Selected Target
 
 on:
   workflow_dispatch:
     inputs:
-      os:
-        description: "Operating System"
+      target:
+        description: "Build Target"
         required: true
         type: choice
         options:
-          - macos-latest
-          - ubuntu-latest
+          - aarch64-apple-darwin
+          - x86_64-apple-darwin
+          - x86_64-unknown-linux-gnu
+          - x86_64-unknown-linux-musl
+          - aarch64-unknown-linux-gnu
+          - armv7-unknown-linux-gnueabihf
+          - riscv64gc-unknown-linux-gnu
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  standard:
-    name: Build-and-deploy
-
-    runs-on: ${{ github.event.inputs.os }}
-
+  build-linux:
+    name: Build for Linux
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.target == 'x86_64-unknown-linux-gnu' || github.event.inputs.target == 'aarch64-unknown-linux-gnu' }}
     steps:
-      - uses:
-          actions/checkout@v4
+      - uses: actions/checkout@v4
 
-          # Set environment variables based on selected OS
       - name: Set variables
         id: set-vars
         run: |
-          if [ "${{ github.event.inputs.os }}" == "ubuntu-latest" ]; then
-          echo "::set-output name=target::x86_64-unknown-linux-gnu"
-          echo "::set-output name=extra::"
-          echo "::set-output name=target_rustflags::"
-          elif [ "${{ github.event.inputs.os }}" == "macos-latest" ]; then
-          echo "::set-output name=target::x86_64-apple-darwin"
-          echo "::set-output name=extra::"
-          echo "::set-output name=target_rustflags::"
-          elif [ "${{ github.event.inputs.os }}" == "windows-latest" ]; then
-          echo "::set-output name=target::x86_64-pc-windows-msvc"
-          echo "::set-output name=extra::bin"
-          echo "::set-output name=target_rustflags::"
-          fi
+          case "${{ github.event.inputs.target }}" in
+            "x86_64-unknown-linux-gnu"|"x86_64-unknown-linux-musl"|"aarch64-unknown-linux-gnu"|"armv7-unknown-linux-gnueabihf"|"riscv64gc-unknown-linux-gnu")
+              echo "::set-output name=os::ubuntu-latest"
+              ;;
+            "aarch64-apple-darwin"|"x86_64-apple-darwin")
+              echo "::set-output name=os::macos-latest"
+              ;;
+          esac
+          echo "::set-output name=bin_name::tgs"
+          echo "::set-output name=target::${{ github.event.inputs.target }}"
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -78,21 +73,86 @@ jobs:
           GITHUB_REF: ${{ github.ref }}
 
       - name: Release Tgs Binary
+        id: tgs
         run: bash .github/workflows/release-pkg.sh
         env:
-          BIN_NAME: "tgs"
-          RELEASE_TYPE: standard
-          OS: ${{ github.event.inputs.os }}
-          REF: ${{ github.ref }}
+          BIN_NAME: ${{ steps.set-vars.outputs.bin_name }}
           TARGET: ${{ steps.set-vars.outputs.target }}
-          _EXTRA_: ${{ steps.set-vars.outputs.extra }}
-          TARGET_RUSTFLAGS: ${{ steps.set-vars.outputs.target_rustflags }}
+          OS: ${{ steps.set-vars.outputs.os }}
 
       - name: Publish Archive
         uses: softprops/action-gh-release@v0.1.15
         if: startsWith(github.ref, 'refs/tags/')
         with:
           draft: true
-          files: ./output/*
+          files: ${{ steps.tgs.outputs.archive }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-macos:
+    name: Build for MacOS
+    runs-on: macos-latest
+    if: ${{ github.event.inputs.target == 'x86_64-apple-darwin' || github.event.inputs.target == 'aarch64-apple-darwin' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set variables
+        id: set-vars
+        run: |
+          case "${{ github.event.inputs.target }}" in
+            "x86_64-unknown-linux-gnu"|"x86_64-unknown-linux-musl"|"aarch64-unknown-linux-gnu"|"armv7-unknown-linux-gnueabihf"|"riscv64gc-unknown-linux-gnu")
+              echo "::set-output name=os::ubuntu-latest"
+              ;;
+            "aarch64-apple-darwin"|"x86_64-apple-darwin")
+              echo "::set-output name=os::macos-latest"
+              ;;
+          esac
+          echo "::set-output name=bin_name::tgs"
+          echo "::set-output name=target::${{ github.event.inputs.target }}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: Set environment variables
+        run: |
+          echo "PYO3_PYTHON=python" >> $GITHUB_ENV
+
+      - name: Add Python to PATH
+        run: echo "$pythonLocation/bin" >> $GITHUB_PATH
+        env:
+          pythonLocation: /opt/hostedtoolcache/Python/3.12.1/x64
+
+      - name: Print debugging information
+        run: |
+          python --version
+          which python
+          echo "PATH: $PATH"
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ steps.set-vars.outputs.target }}
+
+      - name: Extract version
+        run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
+        env:
+          GITHUB_REF: ${{ github.ref }}
+
+      - name: Release Tgs Binary
+        id: tgs
+        run: bash .github/workflows/release-pkg.sh
+        env:
+          BIN_NAME: ${{ steps.set-vars.outputs.bin_name }}
+          TARGET: ${{ steps.set-vars.outputs.target }}
+          OS: ${{ steps.set-vars.outputs.os }}
+
+      - name: Publish Archive
+        uses: softprops/action-gh-release@v0.1.15
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: true
+          files: ${{ steps.tgs.outputs.archive }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
