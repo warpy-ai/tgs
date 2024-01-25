@@ -51,7 +51,7 @@ jobs:
         run: |
           # Set up environment variables for cross-compilation
           echo "PYO3_CROSS=1" >> $GITHUB_ENV
-          echo "PYO3_CROSS_PYTHON_VERSION=3.x" >> $GITHUB_ENV # Replace with your Python version
+          echo "PYO3_CROSS_PYTHON_VERSION=3.12.1" >> $GITHUB_ENV # Replace with your Python version
 
       - name: Set environment variables
         run: |
