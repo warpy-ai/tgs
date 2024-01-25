@@ -56,6 +56,13 @@ jobs:
         env:
           pythonLocation: /opt/hostedtoolcache/Python/3.10/x64
 
+      - name: Setup Cross-Compilation for aarch64-unknown-linux-gnu
+        run: |
+          # Set up environment variables for cross-compilation
+          echo "PYO3_CROSS=1" >> $GITHUB_ENV
+          echo "PYO3_CROSS_PYTHON_VERSION=3.10" >> $GITHUB_ENV # Replace with your Python version
+          echo "PYO3_CROSS_LIB_DIR=/opt/hostedtoolcache/Python/3.10/x64/lib" >> $GITHUB_ENV
+
       - name: Print debugging information
         run: |
           python --version
