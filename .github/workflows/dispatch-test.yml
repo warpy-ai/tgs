@@ -24,7 +24,7 @@ jobs:
   build-linux:
     name: Build for Linux
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.target == 'x86_64-unknown-linux-gnu' || github.event.inputs.target == 'aarch64-unknown-linux-gnu' }}
+    if: ${{ github.event.inputs.target == 'x86_64-unknown-linux-gnu' || github.event.inputs.target == 'aarch64-unknown-linux-gnu' || github.event.inputs.target == 'x86_64-unknown-linux-musl' || github.event.inputs.target == 'riscv64gc-unknown-linux-gnu' || github.event.inputs.target == 'armv7-unknown-linux-gnueabihf'}}
     steps:
       - uses: actions/checkout@v4
 

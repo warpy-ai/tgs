@@ -62,22 +62,22 @@ jobs:
             bin_name: "tgs"
             python-version: "3.x"
           - target: x86_64-unknown-linux-gnu
-            os: ubuntu-20.04
+            os: ubuntu-latest
             target_rustflags: ""
             bin_name: "tgs"
             python-version: "3.x"
           - target: x86_64-unknown-linux-musl
-            os: ubuntu-20.04
+            os: ubuntu-latest
             target_rustflags: ""
             bin_name: "tgs"
             python-version: "3.x"
           - target: aarch64-unknown-linux-gnu
-            os: ubuntu-20.04
+            os: ubuntu-latest
             target_rustflags: ""
             bin_name: "tgs"
             python-version: "3.x"
           - target: armv7-unknown-linux-gnueabihf
-            os: ubuntu-20.04
+            os: ubuntu-latest
             target_rustflags: ""
             bin_name: "tgs"
             python-version: "3.x"
