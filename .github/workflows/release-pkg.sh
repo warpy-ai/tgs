@@ -18,7 +18,7 @@ rm -rf "$DIST_DIR/*"
 
 # Build the project
 echo "Building $BIN_NAME..."
-PYO3_PRINT_CONFIG=1 cargo build --release --target "$TARGET"
+cargo build --release --target "$TARGET"
 
 # Copy binaries to distribution directory
 ARCHIVE_NAME=""
