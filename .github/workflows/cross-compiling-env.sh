@@ -19,10 +19,13 @@ case "${TARGET}" in
     "x86_64-unknown-linux-musl")
         sudo apt-get update
         sudo apt-get install -y musl-tools
-        echo '#!/bin/bash' | sudo tee /usr/local/bin/musl-g++
-        echo 'musl-gcc "$@" -lstdc++' | sudo tee -a /usr/local/bin/musl-g++
-        sudo chmod +x /usr/local/bin/musl-g++
-        # Set paths for musl C++ headers and libraries
+        # Create a custom wrapper script for musl-g++
+        echo '#!/bin/bash' | sudo tee /usr/local/bin/custom-musl-g++
+        echo 'musl-gcc "$@" -I/usr/local/musl/include -L/usr/local/musl/lib -lstdc++' | sudo tee -a /usr/local/bin/custom-musl-g++
+        sudo chmod +x /usr/local/bin/custom-musl-g++
+
+        # Set environment variables for custom wrapper
+        echo 'CXX=/usr/local/bin/custom-musl-g++' >> $GITHUB_ENV
         echo 'CXXFLAGS=-I/usr/local/musl/include' >> $GITHUB_ENV
         echo 'LDFLAGS=-L/usr/local/musl/lib' >> $GITHUB_ENV
         ;;
