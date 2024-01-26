@@ -21,6 +21,75 @@ defaults:
     shell: bash
 
 jobs:
+  build-ubuntu-20:
+    name: Build for Linux
+    runs-on: ubuntu-20.04
+    if: ${{ github.event.inputs.target == 'aarch64-unknown-linux-gnu' || github.event.inputs.target == 'riscv64gc-unknown-linux-gnu' || github.event.inputs.target == 'armv7-unknown-linux-gnueabihf'}}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set variables
+        id: set-vars
+        run: |
+          echo "::set-output name=os::ubuntu-latest"
+          echo "::set-output name=bin_name::tgs"
+          echo "::set-output name=target::${{ github.event.inputs.target }}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+
+      - name: Set Python environment variables
+        run: |
+          echo "PYO3_PYTHON=python" >> $GITHUB_ENV
+          # Dynamically determine the Python installation path
+          PYTHON_PATH=$(dirname $(which python))
+          echo "PYTHON_PATH=${PYTHON_PATH}" >> $GITHUB_ENV
+
+      - name: Add Python to PATH
+        run: echo "$PYTHON_PATH" >> $GITHUB_PATH
+        env:
+          PYTHON_PATH: ${{ env.PYTHON_PATH }}
+
+      - name: Setup Cross-Compilation Environment
+        run: bash .github/workflows/cross-compiling-env.sh
+        env:
+          PYTHON_PATH: ${{ env.PYTHON_PATH }}
+          TARGET: ${{ steps.set-vars.outputs.target }}
+
+      - name: Print debugging information
+        run: |
+          python --version
+          which python
+          echo "PATH: $PATH"
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ steps.set-vars.outputs.target }}
+
+      - name: Extract version
+        run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
+        env:
+          GITHUB_REF: ${{ github.ref }}
+
+      - name: Build binary
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: build
+          target: ${{ steps.set-vars.outputs.target }}
+          args: "--release"
+          strip: true
+
+      - name: Publish Archive
+        uses: softprops/action-gh-release@v0.1.15
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: true
+          files: ${{ steps.tgs.outputs.archive }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-linux:
     name: Build for Linux
     runs-on: ubuntu-latest
