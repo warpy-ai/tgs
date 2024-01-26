@@ -18,7 +18,7 @@ case "${TARGET}" in
         ;;
     "x86_64-unknown-linux-musl")
         sudo apt-get update
-        sudo apt-get install -y musl-tools
+        sudo apt-get install -y musl-tools musl-g++ 
         ;;
     "aarch64-apple-darwin")
         # macOS specific setup (if necessary)
