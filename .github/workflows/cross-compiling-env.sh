@@ -18,7 +18,7 @@ case "${TARGET}" in
         ;;
     "x86_64-unknown-linux-musl")
         sudo apt-get update
-        sudo apt-get install -y musl-tools
+        sudo apt-get install -y musl-tools musl-dev
         # Create a custom wrapper script for musl-g++
         echo '#!/bin/bash' | sudo tee /usr/local/bin/custom-musl-g++
         echo 'musl-gcc "$@" -I/usr/local/musl/include -L/usr/local/musl/lib -lstdc++' | sudo tee -a /usr/local/bin/custom-musl-g++
