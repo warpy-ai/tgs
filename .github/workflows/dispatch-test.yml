@@ -60,33 +60,11 @@ jobs:
           PYTHON_PATH: ${{ env.PYTHON_PATH }}
 
       - name: Setup Cross-Compilation Environment
-        run: |
-          # Set up environment variables for cross-compilation
-          case "${{ github.event.inputs.target }}" in
-            "aarch64-unknown-linux-gnu")
-              sudo apt-get update
-              sudo apt-get install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-              ;;
-          esac
-          echo "PYO3_CROSS=1" >> $GITHUB_ENV
-          echo "PYO3_CROSS_PYTHON_VERSION=3.10" >> $GITHUB_ENV
-
-          # Dynamically set the Python library directory
-          # Assuming the lib directory is at the same level as bin
-          PYTHON_LIB_DIR="$(dirname $PYTHON_PATH)/lib"
-          echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
-
-          # Debug: List contents of the Python installation directory
-          ls -l "$(dirname $PYTHON_PATH)"
-          ls -l "$PYTHON_LIB_DIR"
-
-          # Verify if the directory exists
-          if [ ! -d "$PYTHON_LIB_DIR" ]; then
-            echo "Python library directory for cross-compilation does not exist: $PYTHON_LIB_DIR"
-            exit 1
-          fi
+        run: bash .github/workflows/cross-compiling-env.sh
         env:
           PYTHON_PATH: ${{ env.PYTHON_PATH }}
+          TARGET: ${{ steps.set-vars.outputs.target }}
+          GITHUB_ENV: ${{ github.env }}
 
       - name: Print debugging information
         run: |
