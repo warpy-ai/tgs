@@ -21,13 +21,13 @@ case "${TARGET}" in
         sudo apt-get install -y musl-tools musl-dev
         # Create a custom wrapper script for musl-g++
         echo '#!/bin/bash' | sudo tee /usr/local/bin/custom-musl-g++
-        echo 'musl-gcc "$@" -I/usr/local/musl/include -L/usr/local/musl/lib -lstdc++' | sudo tee -a /usr/local/bin/custom-musl-g++
+        echo 'musl-gcc "$@" -I/usr/include/x86_64-linux-musl -L/usr/lib/x86_64-linux-musl -lstdc++' | sudo tee -a /usr/local/bin/custom-musl-g++
         sudo chmod +x /usr/local/bin/custom-musl-g++
 
         # Set environment variables for custom wrapper
         echo 'CXX=/usr/local/bin/custom-musl-g++' >> $GITHUB_ENV
-        echo 'CXXFLAGS=-I/usr/local/musl/include' >> $GITHUB_ENV
-        echo 'LDFLAGS=-L/usr/local/musl/lib' >> $GITHUB_ENV
+        echo 'CXXFLAGS=-I/usr/include/x86_64-linux-musl' >> $GITHUB_ENV
+        echo 'LDFLAGS=-L/usr/lib/x86_64-linux-musl' >> $GITHUB_ENV
         ;;
     "aarch64-apple-darwin")
         # macOS specific setup (if necessary)
