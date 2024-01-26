@@ -64,7 +64,6 @@ jobs:
         env:
           PYTHON_PATH: ${{ env.PYTHON_PATH }}
           TARGET: ${{ steps.set-vars.outputs.target }}
-          GITHUB_ENV: ${{ github.env }}
 
       - name: Print debugging information
         run: |

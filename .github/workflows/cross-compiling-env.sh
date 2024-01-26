@@ -34,7 +34,7 @@ echo "PYO3_CROSS_PYTHON_VERSION=3.10" >> $GITHUB_ENV
 
 # Dynamically set the Python library directory
 # Assuming the lib directory is at the same level as bin
-PYTHON_LIB_DIR="$(dirname ${PYTHON_PATH}/lib"
+PYTHON_LIB_DIR="$(dirname ${PYTHON_PATH})/lib"
 echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
 
 # Debug: List contents of the Python installation directory
