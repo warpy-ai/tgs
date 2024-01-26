@@ -22,6 +22,9 @@ case "${TARGET}" in
         echo '#!/bin/bash' | sudo tee /usr/local/bin/musl-g++
         echo 'musl-gcc "$@" -lstdc++' | sudo tee -a /usr/local/bin/musl-g++
         sudo chmod +x /usr/local/bin/musl-g++
+        # Set paths for musl C++ headers and libraries
+        echo 'CXXFLAGS=-I/usr/local/musl/include' >> $GITHUB_ENV
+        echo 'LDFLAGS=-L/usr/local/musl/lib' >> $GITHUB_ENV
         ;;
     "aarch64-apple-darwin")
         # macOS specific setup (if necessary)
