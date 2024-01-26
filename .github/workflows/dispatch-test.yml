@@ -27,18 +27,10 @@ jobs:
     if: ${{ github.event.inputs.target == 'x86_64-unknown-linux-gnu' || github.event.inputs.target == 'aarch64-unknown-linux-gnu' || github.event.inputs.target == 'x86_64-unknown-linux-musl' || github.event.inputs.target == 'riscv64gc-unknown-linux-gnu' || github.event.inputs.target == 'armv7-unknown-linux-gnueabihf'}}
     steps:
       - uses: actions/checkout@v4
-
       - name: Set variables
         id: set-vars
         run: |
-          case "${{ github.event.inputs.target }}" in
-            "x86_64-unknown-linux-gnu"|"x86_64-unknown-linux-musl"|"aarch64-unknown-linux-gnu"|"armv7-unknown-linux-gnueabihf"|"riscv64gc-unknown-linux-gnu")
-              echo "::set-output name=os::ubuntu-latest"
-              ;;
-            "aarch64-apple-darwin"|"x86_64-apple-darwin")
-              echo "::set-output name=os::macos-latest"
-              ;;
-          esac
+          echo "::set-output name=os::ubuntu-latest"
           echo "::set-output name=bin_name::tgs"
           echo "::set-output name=target::${{ github.event.inputs.target }}"
 
@@ -47,7 +39,7 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Set environment variables
+      - name: Set Python environment variables
         run: |
           echo "PYO3_PYTHON=python" >> $GITHUB_ENV
           # Dynamically determine the Python installation path
@@ -108,14 +100,7 @@ jobs:
       - name: Set variables
         id: set-vars
         run: |
-          case "${{ github.event.inputs.target }}" in
-            "x86_64-unknown-linux-gnu"|"x86_64-unknown-linux-musl"|"aarch64-unknown-linux-gnu"|"armv7-unknown-linux-gnueabihf"|"riscv64gc-unknown-linux-gnu")
-              echo "::set-output name=os::ubuntu-latest"
-              ;;
-            "aarch64-apple-darwin"|"x86_64-apple-darwin")
-              echo "::set-output name=os::macos-latest"
-              ;;
-          esac
+          echo "::set-output name=os::macos-latest"
           echo "::set-output name=bin_name::tgs"
           echo "::set-output name=target::${{ github.event.inputs.target }}"
 

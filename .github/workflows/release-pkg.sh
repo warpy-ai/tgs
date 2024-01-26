@@ -7,7 +7,7 @@ set -euo pipefail
 BIN_NAME=${BIN_NAME}
 VERSION=$(git describe --tags --always)
 TARGET=${TARGET}
-OS=${OS:-"default_os"}
+OS=${OS}
 DIST_DIR="./output"
 
 echo "Packaging $BIN_NAME v$VERSION for $TARGET on $OS"
