@@ -25,7 +25,7 @@ case "${TARGET}" in
         sudo chmod +x /usr/local/bin/custom-musl-g++
 
         # Set environment variables for custom wrapper
-        echo 'CXX=/usr/local/bin/custom-musl-g++' >> $GITHUB_ENV
+        echo 'CXX=g++' >> $GITHUB_ENV
         echo 'CXXFLAGS=-I/usr/include/x86_64-linux-musl' >> $GITHUB_ENV
         echo 'LDFLAGS=-L/usr/lib/x86_64-linux-musl' >> $GITHUB_ENV
         ;;
