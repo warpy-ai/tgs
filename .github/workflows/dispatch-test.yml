@@ -73,13 +73,13 @@ jobs:
         env:
           GITHUB_REF: ${{ github.ref }}
 
-      - name: Release Tgs Binary
-        id: tgs
-        run: bash .github/workflows/release-pkg.sh
-        env:
-          BIN_NAME: ${{ steps.set-vars.outputs.bin_name }}
-          TARGET: ${{ steps.set-vars.outputs.target }}
-          OS: ${{ steps.set-vars.outputs.os }}
+      - name: Build binary
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: build
+          target: ${{ steps.set-vars.outputs.target }}
+          args: "--locked --release"
+          strip: true
 
       - name: Publish Archive
         uses: softprops/action-gh-release@v0.1.15
