@@ -22,9 +22,9 @@ defaults:
 
 jobs:
   build-ubuntu-20:
-    name: Build for Linux
-    runs-on: ubuntu-20.04
-    if: ${{ github.event.inputs.target == 'aarch64-unknown-linux-gnu' || github.event.inputs.target == 'riscv64gc-unknown-linux-gnu' || github.event.inputs.target == 'armv7-unknown-linux-gnueabihf'}}
+    name: Build for Linux latest
+    runs-on: ubuntu-latest
+    if: ${{  github.event.inputs.target == 'riscv64gc-unknown-linux-gnu' }}
     steps:
       - uses: actions/checkout@v4
       - name: Set variables
@@ -92,7 +92,7 @@ jobs:
 
   build-linux:
     name: Build for Linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     if: ${{ github.event.inputs.target == 'x86_64-unknown-linux-gnu' || github.event.inputs.target == 'aarch64-unknown-linux-gnu' || github.event.inputs.target == 'x86_64-unknown-linux-musl' || github.event.inputs.target == 'riscv64gc-unknown-linux-gnu' || github.event.inputs.target == 'armv7-unknown-linux-gnueabihf'}}
     steps:
       - uses: actions/checkout@v4
