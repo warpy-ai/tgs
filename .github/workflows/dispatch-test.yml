@@ -78,7 +78,7 @@ jobs:
         with:
           command: build
           target: ${{ steps.set-vars.outputs.target }}
-          args: "--locked --release"
+          args: "--release"
           strip: true
 
       - name: Publish Archive
