@@ -16,14 +16,11 @@ case "${TARGET}" in
         sudo apt-get update
         sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         # Install Python for aarch64 from Arch Linux ARM repository
-        # Assuming wget and tar are available
-        wget https://archlinuxarm.org/packages/aarch64/python/download -O python-aarch64.tar.xz
-        mkdir python-aarch64
-        tar -xf python-aarch64.tar.xz -C python-aarch64
-        PYTHON_AARCH64_PATH="$(pwd)/python-aarch64"
+        wget https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.10.13+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz
 
-        # Set environment variables to use the aarch64 Python build
-        echo "PYO3_CROSS_LIB_DIR=$PYTHON_AARCH64_PATH/usr/lib" >> $GITHUB_ENV
+        echo "LD_LIBRARY_PATH=$(pwd)/python-aarch64/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+        echo "PYTHON_SYS_EXECUTABLE=$(pwd)/python-aarch64/bin/python3.10" >> $GITHUB_ENV
+        echo "PYO3_CROSS_LIB_DIR=$(pwd)/python-aarch64/lib" >> $GITHUB_ENV
         ;;
     "x86_64-unknown-linux-gnu")
         sudo apt-get update
