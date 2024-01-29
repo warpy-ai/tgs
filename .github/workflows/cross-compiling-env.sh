@@ -20,8 +20,17 @@ case "${TARGET}" in
         tar -xzvf cpython-3.10.13+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz
 
         PYTHON_LIB_DIR=$(pwd)/python/lib
-        export LD_LIBRARY_PATH=$PYTHON_LIB_DIR:$LD_LIBRARY_PATH
-        export PKG_CONFIG_PATH=$PYTHON_LIB_DIR/pkgconfig:$PKG_CONFIG_PATH
+        export LD_LIBRARY_PATH=$PYTHON_LIB_DIR:${LD_LIBRARY_PATH:-}
+
+        # Set PKG_CONFIG_PATH, handling the case where it might not be set
+        if [ -z "${PKG_CONFIG_PATH+x}" ]; then
+            # PKG_CONFIG_PATH is not set
+            export PKG_CONFIG_PATH=$PYTHON_LIB_DIR/pkgconfig
+        else
+            # PKG_CONFIG_PATH is set, append to it
+            export PKG_CONFIG_PATH=$PYTHON_LIB_DIR/pkgconfig:$PKG_CONFIG_PATH
+        fi
+
         export RUSTFLAGS="-C link-arg=-Wl,-rpath,$PYTHON_LIB_DIR"
         echo "Listing contents of Python installation directory for aarch64..."
         ls -l "$PYTHON_LIB_DIR"
