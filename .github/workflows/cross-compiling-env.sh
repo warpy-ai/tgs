@@ -15,16 +15,16 @@ case "${TARGET}" in
     "aarch64-unknown-linux-gnu")
         sudo apt-get update
         sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-        # Install Python for aarch64 from Arch Linux ARM repository
         wget https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.10.13+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz
-        tar -xzvf cpython-3.10.13+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz
+        mkdir -p python-aarch64 && tar -xzvf cpython-3.10.13+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz -C python-aarch64
 
-        PYTHON_LIB_DIR=$(pwd)/python/lib
-        PYTHON_BIN_DIR=$(pwd)/python/bin
+        PYTHON_LIB_DIR=$(pwd)/python-aarch64/lib
+        PYTHON_BIN_DIR=$(pwd)/python-aarch64/bin
         echo "PYTHON_PATH=$PYTHON_BIN_DIR:$PYTHON_LIB_DIR" >> $GITHUB_ENV
         echo "LD_LIBRARY_PATH=$PYTHON_LIB_DIR:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHON_SYS_EXECUTABLE=$PYTHON_BIN_DIR/python3.10" >> $GITHUB_ENV
         echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
+        echo "RUSTFLAGS=-C link-arg=-Wl,-rpath,$PYTHON_LIB_DIR" >> $GITHUB_ENV
         echo "Listing contents of Python installation directory for aarch64..."
         ls -l "$PYTHON_LIB_DIR"
         ;;
