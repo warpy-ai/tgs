@@ -23,69 +23,22 @@ jobs:
           - aarch64-apple-darwin
           - x86_64-apple-darwin
           - x86_64-unknown-linux-gnu
-          - x86_64-unknown-linux-musl
-          - aarch64-unknown-linux-gnu
-          - armv7-unknown-linux-gnueabihf
-          - riscv64gc-unknown-linux-gnu
         include:
           - target: aarch64-apple-darwin
             os: macos-latest
             target_rustflags: ""
             bin_name: "tgs"
-            python-version: "3.x"
+            python-version: "3.10"
           - target: x86_64-apple-darwin
             os: macos-latest
             target_rustflags: ""
             bin_name: "tgs"
-            python-version: "3.x"
-          - target: x86_64-pc-windows-msvc
-            extra: "bin"
-            os: windows-latest
-            target_rustflags: ""
-            bin_name: "tgs"
-            python-version: "3.x"
-          - target: x86_64-pc-windows-msvc
-            extra: msi
-            os: windows-latest
-            target_rustflags: ""
-            bin_name: "tgs"
-            python-version: "3.x"
-          - target: aarch64-pc-windows-msvc
-            extra: "bin"
-            os: windows-latest
-            target_rustflags: ""
-            python-version: "3.x"
-          - target: aarch64-pc-windows-msvc
-            extra: msi
-            os: windows-latest
-            target_rustflags: ""
-            bin_name: "tgs"
-            python-version: "3.x"
+            python-version: "3.10"
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             target_rustflags: ""
             bin_name: "tgs"
-            python-version: "3.x"
-          - target: x86_64-unknown-linux-musl
-            os: ubuntu-latest
-            target_rustflags: ""
-            bin_name: "tgs"
-            python-version: "3.x"
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            target_rustflags: ""
-            bin_name: "tgs"
-            python-version: "3.x"
-          - target: armv7-unknown-linux-gnueabihf
-            os: ubuntu-latest
-            target_rustflags: ""
-            bin_name: "tgs"
-            python-version: "3.x"
-          - target: riscv64gc-unknown-linux-gnu
-            os: ubuntu-latest
-            target_rustflags: ""
-            bin_name: "tgs"
-            python-version: "3.x"
+            python-version: "3.10"
 
     runs-on: ${{matrix.os}}
 
@@ -97,14 +50,23 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Set environment variables
+      - name: Set Python environment variables
         run: |
           echo "PYO3_PYTHON=python" >> $GITHUB_ENV
+          # Dynamically determine the Python installation path
+          PYTHON_PATH=$(dirname $(which python))
+          echo "PYTHON_PATH=${PYTHON_PATH}" >> $GITHUB_ENV
 
       - name: Add Python to PATH
-        run: echo "$pythonLocation/bin" >> $GITHUB_PATH
+        run: echo "$PYTHON_PATH" >> $GITHUB_PATH
         env:
-          pythonLocation: /opt/hostedtoolcache/Python/3.12.1/x64
+           PYTHON_PATH: ${{ env.PYTHON_PATH }}
+
+      - name: Setup Cross-Compilation Environment
+        run: bash .github/workflows/cross-compiling-env.sh
+        env:
+          PYTHON_PATH: ${{ env.PYTHON_PATH }}
+          TARGET: ${{ matrix.target }}
 
       - name: Print debugging information
         run: |
