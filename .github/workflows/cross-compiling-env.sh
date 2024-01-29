@@ -25,6 +25,8 @@ case "${TARGET}" in
         echo "LD_LIBRARY_PATH=$PYTHON_LIB_DIR:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHON_SYS_EXECUTABLE=$PYTHON_BIN_DIR/python3.10" >> $GITHUB_ENV
         echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
+        echo "Listing contents of Python installation directory for aarch64..."
+        ls -l "$PYTHON_LIB_DIR"
         ;;
     "x86_64-unknown-linux-gnu")
         sudo apt-get update
