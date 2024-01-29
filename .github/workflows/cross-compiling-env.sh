@@ -14,22 +14,21 @@ PYTHON_PATH=${PYTHON_PATH}
 case "${TARGET}" in
     "aarch64-unknown-linux-gnu")
         sudo apt-get update
+        sudo apt-get install libxcb-composite0-dev -y
         sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         wget https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.10.13+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz
         tar -xzvf cpython-3.10.13+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz
 
         PYTHON_LIB_DIR=$(pwd)/python/lib
-        PYTHON_BIN_DIR=$(pwd)/python/bin
-        echo "PYTHON_PATH=$PYTHON_BIN_DIR:$PYTHON_LIB_DIR" >> $GITHUB_ENV
-        echo "LD_LIBRARY_PATH=$PYTHON_LIB_DIR:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-        echo "PYTHON_SYS_EXECUTABLE=$PYTHON_BIN_DIR/python3.10" >> $GITHUB_ENV
-        echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
-        echo "RUSTFLAGS=-C link-arg=-Wl,-rpath,$PYTHON_LIB_DIR" >> $GITHUB_ENV
+        export LD_LIBRARY_PATH=$PYTHON_LIB_DIR:$LD_LIBRARY_PATH
+        export PKG_CONFIG_PATH=$PYTHON_LIB_DIR/pkgconfig:$PKG_CONFIG_PATH
+        export RUSTFLAGS="-C link-arg=-Wl,-rpath,$PYTHON_LIB_DIR"
         echo "Listing contents of Python installation directory for aarch64..."
         ls -l "$PYTHON_LIB_DIR"
         ;;
     "x86_64-unknown-linux-gnu")
         sudo apt-get update
+        sudo apt-get install libxcb-composite0-dev -y
         sudo apt-get install -y gcc-x86-64-linux-gnu g++-x86-64-linux-gnu
         # Dynamically set the Python library directory
         # Assuming the lib directory is at the same level as bin
@@ -39,11 +38,10 @@ case "${TARGET}" in
         ;;
     "x86_64-unknown-linux-musl")
         sudo apt-get update
+        sudo apt-get install libxcb-composite0-dev -y
         sudo apt-get install -y musl-tools musl-dev
         # Create a custom wrapper script for musl-g++
         echo '#!/bin/bash' | sudo tee /usr/local/bin/custom-musl-g++
-        echo 'musl-gcc "$@" -I/usr/include/x86_64-linux-musl -L/usr/lib/x86_64-linux-musl -lstdc++' | sudo tee -a /usr/local/bin/custom-musl-g++
-        sudo chmod +x /usr/local/bin/custom-musl-g++
 
         # Set environment variables for custom wrapper
         echo 'CXX=g++' >> $GITHUB_ENV

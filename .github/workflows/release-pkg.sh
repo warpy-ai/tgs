@@ -21,7 +21,7 @@ rm -rf "$DIST_DIR/*"
 
 # Build the project
 echo "Building $BIN_NAME..."
-cargo build --release --target "$TARGET"
+cargo build --release --target "$TARGET --verbose"
 
 # Copy binaries to distribution directory
 ARCHIVE_NAME=""
