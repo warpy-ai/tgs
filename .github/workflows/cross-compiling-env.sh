@@ -19,6 +19,7 @@ case "${TARGET}" in
         wget https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.10.13+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz
         tar -xzvf cpython-3.10.13+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz
 
+        PYTHON_LIB_DIR=$(pwd)/python/lib
         echo "LD_LIBRARY_PATH=$(pwd)/python/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHON_SYS_EXECUTABLE=$(pwd)/python/bin/python3.10" >> $GITHUB_ENV
         echo "PYO3_CROSS_LIB_DIR=$(pwd)/python/lib" >> $GITHUB_ENV
