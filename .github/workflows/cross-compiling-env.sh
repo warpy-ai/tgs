@@ -35,6 +35,7 @@ case "${TARGET}" in
         # Assuming the lib directory is at the same level as bin
         PYTHON_LIB_DIR="$(dirname ${PYTHON_PATH})/lib"
         echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
+        ls -l "$(dirname $(which python))"
         ;;
     "x86_64-unknown-linux-musl")
         sudo apt-get update
