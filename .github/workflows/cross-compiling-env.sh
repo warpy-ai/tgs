@@ -2,6 +2,10 @@
 
 # Ensure script fails on error
 set -euo pipefail
+set -o errexit
+set -o nounset
+set -o xtrace
+
 
 TARGET=${TARGET}
 PYTHON_PATH=${PYTHON_PATH}

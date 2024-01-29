@@ -2,6 +2,9 @@
 
 # Ensure script fails on error
 set -euo pipefail
+set -o errexit
+set -o nounset
+set -o xtrace
 
 # Variables from the GitHub Actions workflow
 BIN_NAME=${BIN_NAME}
