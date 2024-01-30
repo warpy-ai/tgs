@@ -118,6 +118,12 @@ jobs:
         env:
           pythonLocation: /opt/hostedtoolcache/Python/3.12.1/x64
 
+      - name: Setup Cross-Compilation Environment
+        run: bash .github/workflows/cross-compiling-env.sh
+        env:
+          PYTHON_PATH: ${{ env.PYTHON_PATH }}
+          TARGET: ${{ matrix.target }}
+
       - name: Print debugging information
         run: |
           python --version

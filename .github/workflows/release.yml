@@ -58,9 +58,9 @@ jobs:
           echo "PYTHON_PATH=${PYTHON_PATH}" >> $GITHUB_ENV
 
       - name: Add Python to PATH
-        run: echo "$PYTHON_PATH" >> $GITHUB_PATH
+        run: echo "$pythonLocation/bin" >> $GITHUB_PATH
         env:
-          PYTHON_PATH: ${{ env.PYTHON_PATH }}
+          pythonLocation: /opt/hostedtoolcache/Python/3.12.1/x64
 
       - name: Setup Cross-Compilation Environment
         run: bash .github/workflows/cross-compiling-env.sh
@@ -103,9 +103,9 @@ jobs:
         # REF: https://github.com/marketplace/actions/gh-release
       - name: Publish Archive
         uses: softprops/action-gh-release@v0.1.15
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           draft: true
-          files: ${{ steps.tgs.outputs.archive }}
+          files: ${{ env.archive }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -9,3 +9,6 @@ linker = "x86_64-linux-gnu-gcc"
 
 [target.riscv64gc-unknown-linux-gnu]
 linker = "riscv64gc-unknown-linux-gnu-gcc"
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]

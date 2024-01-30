@@ -63,20 +63,6 @@ case "${TARGET}" in
         PYTHON_LIB_DIR="$(dirname ${PYTHON_PATH})/lib"
         echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
         ;;
-    "aarch64-apple-darwin")
-        # macOS specific setup (if necessary)
-        # Dynamically set the Python library directory
-        # Assuming the lib directory is at the same level as bin
-        PYTHON_LIB_DIR="$(dirname ${PYTHON_PATH})/lib"
-        echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
-        ;;
-    "x86_64-apple-darwin")
-        # macOS specific setup (if necessary)
-        # Dynamically set the Python library directory
-        # Assuming the lib directory is at the same level as bin
-        PYTHON_LIB_DIR="$(dirname ${PYTHON_PATH})/lib"
-        echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
-        ;;
 esac
 
 # Set PYO3 environment variables
