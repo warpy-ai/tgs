@@ -60,7 +60,7 @@ jobs:
       - name: Add Python to PATH
         run: echo "$PYTHON_PATH" >> $GITHUB_PATH
         env:
-           PYTHON_PATH: ${{ env.PYTHON_PATH }}
+          PYTHON_PATH: ${{ env.PYTHON_PATH }}
 
       - name: Setup Cross-Compilation Environment
         run: bash .github/workflows/cross-compiling-env.sh
@@ -95,6 +95,10 @@ jobs:
           TARGET: ${{ matrix.target }}
           _EXTRA_: ${{ matrix.extra }}
           TARGET_RUSTFLAGS: ${{ matrix.target_rustflags }}
+
+      - name: Verify Archive Existence
+        run: |
+          ls -l ${{ env.archive }}
 
         # REF: https://github.com/marketplace/actions/gh-release
       - name: Publish Archive

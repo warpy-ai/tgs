@@ -40,4 +40,5 @@ fi
 echo "Packaging completed: $DIST_DIR"
 
 # Set the output for GitHub Actions
-echo "::set-output name=archive::${DIST_DIR}/${ARCHIVE_NAME}"
+echo "archive=${DIST_DIR}/${ARCHIVE_NAME}" >> $GITHUB_ENV
+
