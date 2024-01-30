@@ -31,7 +31,9 @@ case "${TARGET}" in
             export PKG_CONFIG_PATH=$PYTHON_LIB_DIR/pkgconfig:$PKG_CONFIG_PATH
         fi
 
-        export RUSTFLAGS="-C link-arg=-Wl,-rpath,$PYTHON_LIB_DIR"
+        export RUSTFLAGS="-C link-args=-Wl,-rpath,/home/runner/work/tgs/tgs/python/lib -C link-arg=-L/home/runner/work/tgs/tgs/python/lib"
+
+
         echo "Listing contents of Python installation directory for aarch64..."
         ls -l "$PYTHON_LIB_DIR"
         ;;
