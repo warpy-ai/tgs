@@ -2,12 +2,15 @@
 
 # Ensure script fails on error
 set -euo pipefail
+set -o errexit
+set -o nounset
+set -o xtrace
 
 # Variables from the GitHub Actions workflow
 BIN_NAME=${BIN_NAME}
 VERSION=$(git describe --tags --always)
 TARGET=${TARGET}
-OS=${OS:-"default_os"}
+OS=${OS}
 DIST_DIR="./output"
 
 echo "Packaging $BIN_NAME v$VERSION for $TARGET on $OS"
@@ -18,7 +21,7 @@ rm -rf "$DIST_DIR/*"
 
 # Build the project
 echo "Building $BIN_NAME..."
-cargo build --release --target "$TARGET"
+cargo build --release --target "$TARGET" --verbose
 
 # Copy binaries to distribution directory
 ARCHIVE_NAME=""

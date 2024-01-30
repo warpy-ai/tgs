@@ -24,37 +24,38 @@ jobs:
   build-linux:
     name: Build for Linux
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.target == 'x86_64-unknown-linux-gnu' || github.event.inputs.target == 'aarch64-unknown-linux-gnu' }}
+    if: ${{ github.event.inputs.target == 'x86_64-unknown-linux-gnu' || github.event.inputs.target == 'aarch64-unknown-linux-gnu' || github.event.inputs.target == 'x86_64-unknown-linux-musl' || github.event.inputs.target == 'riscv64gc-unknown-linux-gnu' || github.event.inputs.target == 'armv7-unknown-linux-gnueabihf'}}
     steps:
       - uses: actions/checkout@v4
-
       - name: Set variables
         id: set-vars
         run: |
-          case "${{ github.event.inputs.target }}" in
-            "x86_64-unknown-linux-gnu"|"x86_64-unknown-linux-musl"|"aarch64-unknown-linux-gnu"|"armv7-unknown-linux-gnueabihf"|"riscv64gc-unknown-linux-gnu")
-              echo "::set-output name=os::ubuntu-latest"
-              ;;
-            "aarch64-apple-darwin"|"x86_64-apple-darwin")
-              echo "::set-output name=os::macos-latest"
-              ;;
-          esac
+          echo "::set-output name=os::ubuntu-latest"
           echo "::set-output name=bin_name::tgs"
           echo "::set-output name=target::${{ github.event.inputs.target }}"
 
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.x"
+          python-version: "3.10"
 
-      - name: Set environment variables
+      - name: Set Python environment variables
         run: |
           echo "PYO3_PYTHON=python" >> $GITHUB_ENV
+          # Dynamically determine the Python installation path
+          PYTHON_PATH=$(dirname $(which python))
+          echo "PYTHON_PATH=${PYTHON_PATH}" >> $GITHUB_ENV
 
       - name: Add Python to PATH
-        run: echo "$pythonLocation/bin" >> $GITHUB_PATH
+        run: echo "$PYTHON_PATH" >> $GITHUB_PATH
         env:
-          pythonLocation: /opt/hostedtoolcache/Python/3.12.1/x64
+          PYTHON_PATH: ${{ env.PYTHON_PATH }}
+
+      - name: Setup Cross-Compilation Environment
+        run: bash .github/workflows/cross-compiling-env.sh
+        env:
+          PYTHON_PATH: ${{ env.PYTHON_PATH }}
+          TARGET: ${{ steps.set-vars.outputs.target }}
 
       - name: Print debugging information
         run: |
@@ -99,14 +100,7 @@ jobs:
       - name: Set variables
         id: set-vars
         run: |
-          case "${{ github.event.inputs.target }}" in
-            "x86_64-unknown-linux-gnu"|"x86_64-unknown-linux-musl"|"aarch64-unknown-linux-gnu"|"armv7-unknown-linux-gnueabihf"|"riscv64gc-unknown-linux-gnu")
-              echo "::set-output name=os::ubuntu-latest"
-              ;;
-            "aarch64-apple-darwin"|"x86_64-apple-darwin")
-              echo "::set-output name=os::macos-latest"
-              ;;
-          esac
+          echo "::set-output name=os::macos-latest"
           echo "::set-output name=bin_name::tgs"
           echo "::set-output name=target::${{ github.event.inputs.target }}"
 
