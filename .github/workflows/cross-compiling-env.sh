@@ -64,14 +64,10 @@ case "${TARGET}" in
         echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
         ;;
     "aarch64-apple-darwin")
-        sudo apt-get update
-        sudo apt-get install libxcb-composite0-dev -y
         PYTHON_LIB_DIR="$(dirname ${PYTHON_PATH})/lib"
         echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
         ;;
     "x86_64-apple-darwin")
-        sudo apt-get update
-        sudo apt-get install libxcb-composite0-dev -y
         PYTHON_LIB_DIR="$(dirname ${PYTHON_PATH})/lib"
         echo "PYO3_CROSS_LIB_DIR=$PYTHON_LIB_DIR" >> $GITHUB_ENV
         ;;
