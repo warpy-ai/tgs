@@ -13,6 +13,10 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: write
+  discussions: write
+
 jobs:
   standard:
     name: Build-and-deploy
@@ -22,6 +26,7 @@ jobs:
         target:
           - aarch64-apple-darwin
           - x86_64-apple-darwin
+          - x86_64-unknown-linux-gnu
         include:
           - target: aarch64-apple-darwin
             os: macos-latest
@@ -30,6 +35,11 @@ jobs:
             python-version: "3.10"
           - target: x86_64-apple-darwin
             os: macos-latest
+            target_rustflags: ""
+            bin_name: "tgs"
+            python-version: "3.10"
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
             target_rustflags: ""
             bin_name: "tgs"
             python-version: "3.10"
@@ -94,10 +104,10 @@ jobs:
         run: |
           ls -l ${{ env.archive }}
 
-      # REF: https://github.com/marketplace/actions/gh-release
+        # REF: https://github.com/marketplace/actions/gh-release
       - name: Publish Archive
         uses: softprops/action-gh-release@v0.1.15
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           draft: true
           files: ${{ env.archive }}
