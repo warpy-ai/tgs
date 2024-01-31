@@ -33,11 +33,6 @@ jobs:
             target_rustflags: ""
             bin_name: "tgs"
             python-version: "3.10"
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            target_rustflags: ""
-            bin_name: "tgs"
-            python-version: "3.10"
 
     runs-on: ${{matrix.os}}
 
