@@ -86,6 +86,13 @@ pub enum Command {
     /// ```
     Subshell(Box<Command>),
 
+    /// Represents a command with an embedded command action, such as `find` with `-exec`
+    Exec {
+        base: Box<Command>,   // The base command, e.g., `find . -type f`
+        action: Box<Command>, // The command to execute for each match, e.g., `ls -l`
+        terminator: String,   // The terminator used, e.g., `\;`
+    },
+
     /// If statements
     If {
         conds: Vec<Condition>,

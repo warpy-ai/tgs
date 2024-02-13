@@ -57,35 +57,18 @@ pub fn eval_command(
     stdout: Option<Output>,
 ) -> Result<(Vec<Box<dyn Process>>, Option<u32>), PosixError> {
     match cmd {
-        ast::Command::Simple {
-            assigns: _,
-            redirects: _,
-            args,
-        } => {
-            let mut args_it = args.iter();
-            let program = args_it.next().unwrap();
-            let args = args_it.collect::<Vec<_>>();
-
-            let proc_stdin = stdin.unwrap_or(Stdin::Inherit);
-            let proc_stdout = stdout.unwrap_or(Output::Inherit);
-
-            let (proc, pgid) = match run_external_command(
-                program,
-                &args,
-                proc_stdin,
-                proc_stdout,
-                Output::Inherit,
-                None,
-            ) {
-                Ok((proc, pgid)) => (proc, pgid),
-                Err(e) => match e.kind() {
-                    std::io::ErrorKind::NotFound => {
-                        return Err(PosixError::CommandNotFound(program.clone()))
-                    }
-                    _ => return Err(PosixError::Eval(e.into())),
-                },
-            };
-            Ok((vec![proc], pgid))
+        ast::Command::Simple { args, .. } => {
+            // Attempt to execute the command, handling potential errors
+            match execute_simple_command(args, stdin, stdout) {
+                Ok(result) => Ok(result),
+                Err(e) => {
+                    // Handle the error, e.g., log it and continue
+                    eprintln!("Error executing command: {:?}", e);
+                    // Optionally return a "success" with no processes to avoid termination
+                    // Adjust based on your error handling strategy
+                    Ok((vec![], None))
+                }
+            }
         }
         ast::Command::Pipeline(a_cmd, b_cmd) => {
             let (mut a_procs, _a_pgid) =
@@ -110,7 +93,38 @@ pub fn eval_command(
                 Ok((vec![], None))
             }
         }
-        ast::Command::None => Ok((vec![], None)),
-        _ => todo!(),
+        ast::Command::None => {
+            println!("Command not found");
+            Ok((vec![], None))
+        }
+        _ => Err(PosixError::Eval(anyhow::Error::msg(
+            "Command not yet implemented",
+        ))),
+    }
+}
+
+fn execute_simple_command(
+    args: &[String], // Assuming args is a slice of String
+    stdin: Option<Stdin>,
+    stdout: Option<Output>,
+) -> Result<(Vec<Box<dyn Process>>, Option<u32>), PosixError> {
+    let program = args
+        .first()
+        .ok_or(PosixError::CommandNotFound("No command specified".into()))?;
+    // Safely unwrap `stdin` and `stdout`, providing defaults if they're None
+    let stdin_unwrapped = stdin.unwrap_or(Stdin::Inherit);
+    let stdout_unwrapped = stdout.unwrap_or(Output::Inherit);
+
+    // Call `run_external_command` with unwrapped values
+    match run_external_command(
+        program,
+        &args[1..],
+        stdin_unwrapped,
+        stdout_unwrapped,
+        Output::Inherit,
+        None,
+    ) {
+        Ok((proc, pgid)) => Ok((vec![proc], pgid)),
+        Err(e) => Err(PosixError::Eval(e.into())), // Convert the error as needed
     }
 }

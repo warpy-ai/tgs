@@ -31,6 +31,14 @@ pub enum PosixError {
     Job(anyhow::Error),
 }
 
+impl From<std::io::Error> for PosixError {
+    fn from(err: std::io::Error) -> Self {
+        PosixError::Eval(anyhow::Error::new(err))
+        // Or if you want to use a different variant of PosixError that might be more appropriate for IO errors:
+        // PosixError::Redirect(err)
+    }
+}
+
 /// Posix implementation of shell command language
 pub struct PosixLang {}
 

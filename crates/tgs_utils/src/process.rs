@@ -1,8 +1,10 @@
 use std::{
     ffi::OsStr,
-    fmt, iter,
+    fmt,
+    io::{self, BufRead, BufReader},
+    iter,
     os::fd::AsRawFd,
-    process::{Child, Command, ExitStatus},
+    process::{Child, Command, ExitStatus, Stdio},
 };
 
 use log::*;
@@ -313,4 +315,21 @@ where
         Box::new(ExternalProcess::new(program, args, child)),
         Some(pgid),
     ))
+}
+
+pub fn execute_and_capture_output(program: &str, args: &[&str]) -> io::Result<String> {
+    let output = Command::new(program)
+        .args(args)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::inherit())
+        .output()?;
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).into_owned())
+    } else {
+        Err(io::Error::new(
+            io::ErrorKind::Other,
+            "Command execution failed",
+        ))
+    }
 }
