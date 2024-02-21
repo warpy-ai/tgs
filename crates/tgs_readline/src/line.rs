@@ -1,6 +1,6 @@
 //! Core readline configuration
 
-use std::borrow::BorrowMut;
+use std::{borrow::BorrowMut, io::stdout};
 
 use crossterm::{
     cursor::SetCursorStyle,
@@ -274,8 +274,8 @@ impl Line {
                 }
             }
 
-            let autosuggestion = self.fetch_autosuggestion(line_ctx); // Assume this method is implemented
-            self.render_with_autosuggestion(line_ctx, autosuggestion, &mut styled_buf); // Method to integrate suggestion into rendering
+            let autosuggestion = self.fetch_autosuggestion(line_ctx);
+            self.render_with_autosuggestion(line_ctx, autosuggestion, &mut styled_buf);
 
             self.painter.paint(
                 line_ctx,
@@ -651,22 +651,33 @@ impl Line {
         autosuggestion: Option<String>,
         styled_buf: &mut StyledBuf,
     ) -> anyhow::Result<()> {
-        let binding = line_ctx.cb.as_str();
-        let current_input = binding.as_ref();
+        // Clear the current line once
+        execute!(stdout(), Clear(ClearType::CurrentLine))?;
 
-        execute!(std::io::stdout(), Clear(ClearType::CurrentLine),)?;
+        let current_input = line_ctx.cb.as_str();
+        let current_input_str = current_input.as_ref(); // Convert Cow<'_, str> to &str
 
-        if !current_input.is_empty() {
-            execute!(std::io::stdout(), Print(&line_ctx.cb.as_str()),)?;
+        // Early return if there's no input and no suggestion
+        if current_input_str.is_empty() && autosuggestion.is_none() {
+            return Ok(());
+        }
 
-            if let Some(suggestion) = autosuggestion {
-                let suggestion_extension = suggestion
-                    .chars()
-                    .skip(current_input.len())
-                    .collect::<String>();
+        // Print the current input
+        if !current_input_str.is_empty() {
+            execute!(stdout(), Print(current_input_str))?;
+        }
 
+        // Handle the autosuggestion
+        if let Some(suggestion) = autosuggestion {
+            // Ensure the suggestion is not the same as the current input
+            if suggestion != current_input_str {
+                // Determine the suggestion extension
+                let extension_start_index = current_input_str.len().min(suggestion.len());
+                let suggestion_extension = &suggestion[extension_start_index..];
+
+                // Render the suggestion extension with a specific style
                 styled_buf.push(
-                    &suggestion_extension,
+                    suggestion_extension,
                     ContentStyle {
                         foreground_color: Some(Color::DarkGrey),
                         ..Default::default()
@@ -677,6 +688,7 @@ impl Line {
 
         Ok(())
     }
+
     // replace word at cursor with accepted word (used in automcompletion)
     fn accept_completion(
         &mut self,
