@@ -8,8 +8,8 @@ use crossterm::{
         read, DisableBracketedPaste, EnableBracketedPaste, Event, KeyCode, KeyEvent, KeyModifiers,
     },
     execute,
-    style::{Color, ContentStyle},
-    terminal::{disable_raw_mode, enable_raw_mode},
+    style::{Attribute, Color, ContentStyle, Print, SetAttribute, SetForegroundColor},
+    terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
 };
 use tgs_core::shell::{Context, Runtime, Shell};
 use tgs_services::{
@@ -186,7 +186,6 @@ impl LineBuilder {
 }
 
 impl Readline for Line {
-    /// Start readline and read one line of user input
     fn read_line(&mut self, sh: &Shell, ctx: &mut Context, rt: &mut Runtime) -> String {
         let mut line_ctx = LineCtx::new(sh, ctx, rt);
         self.read_events(&mut line_ctx).unwrap()
@@ -274,6 +273,9 @@ impl Line {
                     );
                 }
             }
+
+            let autosuggestion = self.fetch_autosuggestion(line_ctx); // Assume this method is implemented
+            self.render_with_autosuggestion(line_ctx, autosuggestion, &mut styled_buf); // Method to integrate suggestion into rendering
 
             self.painter.paint(
                 line_ctx,
@@ -628,6 +630,53 @@ impl Line {
         Ok(())
     }
 
+    fn fetch_autosuggestion(&self, ctx: &mut LineCtx) -> Option<String> {
+        let args: Vec<String> = ctx
+            .cb
+            .slice(..ctx.cb.cursor())
+            .as_str()
+            .unwrap()
+            .split_whitespace()
+            .map(String::from)
+            .collect();
+
+        let comp_ctx = CompletionCtx::new(args);
+        let completions = self.completer.complete(&comp_ctx);
+        completions.first().map(|comp| comp.accept())
+    }
+
+    fn render_with_autosuggestion(
+        &mut self,
+        line_ctx: &LineCtx,
+        autosuggestion: Option<String>,
+        styled_buf: &mut StyledBuf,
+    ) -> anyhow::Result<()> {
+        let binding = line_ctx.cb.as_str();
+        let current_input = binding.as_ref();
+
+        execute!(std::io::stdout(), Clear(ClearType::CurrentLine),)?;
+
+        if !current_input.is_empty() {
+            execute!(std::io::stdout(), Print(&line_ctx.cb.as_str()),)?;
+
+            if let Some(suggestion) = autosuggestion {
+                let suggestion_extension = suggestion
+                    .chars()
+                    .skip(current_input.len())
+                    .collect::<String>();
+
+                styled_buf.push(
+                    &suggestion_extension,
+                    ContentStyle {
+                        foreground_color: Some(Color::DarkGrey),
+                        ..Default::default()
+                    },
+                );
+            }
+        }
+
+        Ok(())
+    }
     // replace word at cursor with accepted word (used in automcompletion)
     fn accept_completion(
         &mut self,

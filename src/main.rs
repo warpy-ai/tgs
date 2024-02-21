@@ -1,12 +1,8 @@
 use std::fs;
 
-
 use tgs_prompt::TGSPrompt;
 use tgs_setup;
-use tgs_shell::{
-    history::FileBackedHistory,
-    prelude::{*},
-};
+use tgs_shell::{history::FileBackedHistory, prelude::*};
 
 use tokio::runtime;
 
