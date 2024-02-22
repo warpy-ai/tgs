@@ -15,7 +15,8 @@ use tgs_services::styled_buf::{line_content_len, StyledBuf};
 use unicode_width::UnicodeWidthStr;
 
 use crate::{
-    completion::Completion, cursor::CursorStyle, line::LineCtx, menu::Menu, prompt::Prompt,
+    autosuggestion::Autosuggestion, completion::Completion, cursor::CursorStyle, line::LineCtx,
+    menu::Menu, prompt::Prompt,
 };
 pub struct Painter {
     /// The output buffer
@@ -214,6 +215,15 @@ impl Painter {
         // set cursor style
         let cursor_style = line_ctx.ctx.state.get_or_default::<CursorStyle>();
         self.out.borrow_mut().queue(cursor_style.style)?;
+
+        /*  let borrowed_styled_buf = &mut styled_buf.clone();
+        if let Some(ref autosuggestion) = line_ctx.suggestion {
+            Autosuggestion::render_with_autosuggestion(
+                line_ctx,
+                Some(autosuggestion.clone()),
+                borrowed_styled_buf,
+            );
+        } */
 
         self.out.borrow_mut().flush()?;
 

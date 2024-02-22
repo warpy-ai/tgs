@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate derive_builder;
 
+pub mod autosuggestion;
 pub mod buffer_history;
 pub mod completion;
 pub mod cursor;
@@ -20,6 +21,7 @@ pub mod prelude {
 
     // Macros
     pub use crate::{
+        autosuggestion::{Autosuggester, DefaultAutosuggester},
         buffer_history::{BufferHistory, DefaultBufferHistory},
         completion::*,
         cursor::CursorStyle,

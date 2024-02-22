@@ -18,7 +18,11 @@ use tgs_services::{
 };
 use tgs_vi::{Action, Command, Motion, Parser};
 
-use crate::{painter::Painter, prelude::*};
+use crate::{
+    autosuggestion::{Autosuggester, Autosuggestion, DefaultAutosuggester},
+    painter::Painter,
+    prelude::*,
+};
 
 pub trait Readline {
     fn read_line(&mut self, sh: &Shell, ctx: &mut Context, rt: &mut Runtime) -> String;
@@ -71,6 +75,11 @@ pub struct Line {
     #[builder(default = "String::new()")]
     #[builder(setter(skip))]
     normal_keys: String,
+
+    /// Autosuggertion , see [Autosuggester]
+    #[builder(default = "Box::new(DefaultAutosuggester)")]
+    #[builder(setter(custom))]
+    autosuggester: Box<dyn Autosuggester>,
 }
 
 impl Default for Line {
@@ -134,6 +143,7 @@ pub struct LineCtx<'a> {
     pub sh: &'a Shell,
     pub ctx: &'a mut Context,
     pub rt: &'a mut Runtime,
+    pub suggestion: Option<String>,
 }
 
 impl<'a> LineCtx<'a> {
@@ -148,6 +158,7 @@ impl<'a> LineCtx<'a> {
             sh,
             ctx,
             rt,
+            suggestion: None,
         }
     }
     pub fn mode(&self) -> LineMode {
@@ -159,6 +170,10 @@ impl<'a> LineCtx<'a> {
         res += cur_line.as_str();
 
         res
+    }
+
+    pub fn update_suggestion(&mut self, new_suggestion: Option<String>) {
+        self.suggestion = new_suggestion;
     }
 }
 
@@ -274,8 +289,27 @@ impl Line {
                 }
             }
 
-            let autosuggestion = self.fetch_autosuggestion(line_ctx);
-            self.render_with_autosuggestion(line_ctx, autosuggestion, &mut styled_buf);
+            let autosuggestion = Autosuggestion::fetch_autosuggestion(&*self.completer, line_ctx);
+
+            let current_input = line_ctx.cb.as_str();
+            let current_input_str = current_input.as_ref();
+
+            if let Some(suggestion) = autosuggestion {
+                let trimmed_selection = &suggestion[line_ctx.current_word.len()..];
+                let suggestion_extension =
+                    match Autosuggestion::complete_input(current_input_str, trimmed_selection) {
+                        Some(s) => s,
+                        None => suggestion.clone(),
+                    };
+
+                styled_buf.push(
+                    &suggestion_extension,
+                    ContentStyle {
+                        foreground_color: Some(Color::DarkGrey),
+                        ..Default::default()
+                    },
+                );
+            }
 
             self.painter.paint(
                 line_ctx,
@@ -626,65 +660,6 @@ impl Line {
             .map(|c| (c.display(), (*c).clone()))
             .collect::<Vec<_>>();
         self.menu.set_items(menuitems);
-
-        Ok(())
-    }
-
-    fn fetch_autosuggestion(&self, ctx: &mut LineCtx) -> Option<String> {
-        let args: Vec<String> = ctx
-            .cb
-            .slice(..ctx.cb.cursor())
-            .as_str()
-            .unwrap()
-            .split_whitespace()
-            .map(String::from)
-            .collect();
-
-        let comp_ctx = CompletionCtx::new(args);
-        let completions = self.completer.complete(&comp_ctx);
-        completions.first().map(|comp| comp.accept())
-    }
-
-    fn render_with_autosuggestion(
-        &mut self,
-        line_ctx: &LineCtx,
-        autosuggestion: Option<String>,
-        styled_buf: &mut StyledBuf,
-    ) -> anyhow::Result<()> {
-        // Clear the current line once
-        execute!(stdout(), Clear(ClearType::CurrentLine))?;
-
-        let current_input = line_ctx.cb.as_str();
-        let current_input_str = current_input.as_ref(); // Convert Cow<'_, str> to &str
-
-        // Early return if there's no input and no suggestion
-        if current_input_str.is_empty() && autosuggestion.is_none() {
-            return Ok(());
-        }
-
-        // Print the current input
-        if !current_input_str.is_empty() {
-            execute!(stdout(), Print(current_input_str))?;
-        }
-
-        // Handle the autosuggestion
-        if let Some(suggestion) = autosuggestion {
-            // Ensure the suggestion is not the same as the current input
-            if suggestion != current_input_str {
-                // Determine the suggestion extension
-                let extension_start_index = current_input_str.len().min(suggestion.len());
-                let suggestion_extension = &suggestion[extension_start_index..];
-
-                // Render the suggestion extension with a specific style
-                styled_buf.push(
-                    suggestion_extension,
-                    ContentStyle {
-                        foreground_color: Some(Color::DarkGrey),
-                        ..Default::default()
-                    },
-                );
-            }
-        }
 
         Ok(())
     }
