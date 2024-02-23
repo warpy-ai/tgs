@@ -216,7 +216,9 @@ impl Painter {
         let cursor_style = line_ctx.ctx.state.get_or_default::<CursorStyle>();
         self.out.borrow_mut().queue(cursor_style.style)?;
 
-        /*  let borrowed_styled_buf = &mut styled_buf.clone();
+        // TODO: render autosuggestion from painter
+        /*
+        let borrowed_styled_buf = &mut styled_buf.clone();
         if let Some(ref autosuggestion) = line_ctx.suggestion {
             Autosuggestion::render_with_autosuggestion(
                 line_ctx,

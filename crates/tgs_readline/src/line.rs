@@ -291,6 +291,8 @@ impl Line {
 
             let autosuggestion = Autosuggestion::fetch_autosuggestion(&*self.completer, line_ctx);
 
+            // TODO: autosuggestion is been render here, but should be rendered in the painter
+
             let current_input = line_ctx.cb.as_str();
             let current_input_str = current_input.as_ref();
 
