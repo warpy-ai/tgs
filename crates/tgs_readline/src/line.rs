@@ -1,6 +1,6 @@
 //! Core readline configuration
 
-use std::borrow::BorrowMut;
+use std::{borrow::BorrowMut, io::stdout};
 
 use crossterm::{
     cursor::SetCursorStyle,
@@ -8,8 +8,8 @@ use crossterm::{
         read, DisableBracketedPaste, EnableBracketedPaste, Event, KeyCode, KeyEvent, KeyModifiers,
     },
     execute,
-    style::{Color, ContentStyle},
-    terminal::{disable_raw_mode, enable_raw_mode},
+    style::{Attribute, Color, ContentStyle, Print, SetAttribute, SetForegroundColor},
+    terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
 };
 use tgs_core::shell::{Context, Runtime, Shell};
 use tgs_services::{
@@ -18,7 +18,11 @@ use tgs_services::{
 };
 use tgs_vi::{Action, Command, Motion, Parser};
 
-use crate::{painter::Painter, prelude::*};
+use crate::{
+    autosuggestion::{Autosuggester, Autosuggestion, DefaultAutosuggester},
+    painter::Painter,
+    prelude::*,
+};
 
 pub trait Readline {
     fn read_line(&mut self, sh: &Shell, ctx: &mut Context, rt: &mut Runtime) -> String;
@@ -71,6 +75,11 @@ pub struct Line {
     #[builder(default = "String::new()")]
     #[builder(setter(skip))]
     normal_keys: String,
+
+    /// Autosuggertion , see [Autosuggester]
+    #[builder(default = "Box::new(DefaultAutosuggester)")]
+    #[builder(setter(custom))]
+    autosuggester: Box<dyn Autosuggester>,
 }
 
 impl Default for Line {
@@ -134,6 +143,7 @@ pub struct LineCtx<'a> {
     pub sh: &'a Shell,
     pub ctx: &'a mut Context,
     pub rt: &'a mut Runtime,
+    pub suggestion: Option<String>,
 }
 
 impl<'a> LineCtx<'a> {
@@ -148,6 +158,7 @@ impl<'a> LineCtx<'a> {
             sh,
             ctx,
             rt,
+            suggestion: None,
         }
     }
     pub fn mode(&self) -> LineMode {
@@ -159,6 +170,10 @@ impl<'a> LineCtx<'a> {
         res += cur_line.as_str();
 
         res
+    }
+
+    pub fn update_suggestion(&mut self, new_suggestion: Option<String>) {
+        self.suggestion = new_suggestion;
     }
 }
 
@@ -186,7 +201,6 @@ impl LineBuilder {
 }
 
 impl Readline for Line {
-    /// Start readline and read one line of user input
     fn read_line(&mut self, sh: &Shell, ctx: &mut Context, rt: &mut Runtime) -> String {
         let mut line_ctx = LineCtx::new(sh, ctx, rt);
         self.read_events(&mut line_ctx).unwrap()
@@ -273,6 +287,30 @@ impl Line {
                         },
                     );
                 }
+            }
+
+            let autosuggestion = Autosuggestion::fetch_autosuggestion(&*self.completer, line_ctx);
+
+            // TODO: autosuggestion is been render here, but should be rendered in the painter
+
+            let current_input = line_ctx.cb.as_str();
+            let current_input_str = current_input.as_ref();
+
+            if let Some(suggestion) = autosuggestion {
+                let trimmed_selection = &suggestion[line_ctx.current_word.len()..];
+                let suggestion_extension =
+                    match Autosuggestion::complete_input(current_input_str, trimmed_selection) {
+                        Some(s) => s,
+                        None => suggestion.clone(),
+                    };
+
+                styled_buf.push(
+                    &suggestion_extension,
+                    ContentStyle {
+                        foreground_color: Some(Color::DarkGrey),
+                        ..Default::default()
+                    },
+                );
             }
 
             self.painter.paint(
