@@ -9,7 +9,7 @@ def load_model():
 
     # The model directory is in the same parent directory as the script
     # Adjust this to the correct relative path
-    relative_model_path = "crates/tgs_t5_finetunned/model"
+    relative_model_path = "model"
 
     # Construct the absolute path to the model directory
     model_path = os.path.join(base_path, relative_model_path)

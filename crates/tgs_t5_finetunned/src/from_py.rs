@@ -34,20 +34,19 @@ fn call_dialoger(result: String) -> String {
 pub fn execute(input_text: &str) -> PyResult<String> {
     let loader = LoadingIndicator::new(custom::DARK_WHITE);
     pyo3::prepare_freethreaded_python();
-    // Construct the absolute path to the Python script
-    let mut script_path = env::current_exe()?;
-    // Navigate up to the project root directory
-    for _ in 0..3 {
-        script_path.pop();
-    }
-    // Now script_path should point to the project root
-    script_path.push("crates/tgs_t5_finetunned/inference_model.py"); // Navigate to the script
+    let mut executable_path = env::current_exe()?;
 
+    executable_path.pop(); // Remove the executable name from the path
+    executable_path.push("inference_model.py"); // Directly point to `inference_model.py` at the root
+
+    println!("Path: {:?}", executable_path);
     loader.start(input_text);
     Python::with_gil(|py| {
-        let code = fs::read_to_string(script_path)?;
+        let code = fs::read_to_string(&executable_path)?;
 
         let module = PyModule::from_code(py, &code, "inference_model.py", "inference_model")?;
+
+        println!("Module: {:?}", module);
 
         let result: PyResult<String> = module
             .getattr("generate_answer")?
