@@ -37,3 +37,4 @@ regex = "1.5.5"
 term = "0.7.0"
 duct = "0.13.6"
 tokio = { version = "1", features = ["full"] }
+fs_extra = "1.3"

@@ -1,5 +1,6 @@
 use dialoguer::{theme::ColorfulTheme, Select};
 use pyo3::{prelude::*, types::PyModule};
+use std::path::PathBuf;
 use std::{env, fs};
 use tgs_colors::custom;
 use tgs_loader::LoadingIndicator;
@@ -31,13 +32,31 @@ fn call_dialoger(result: String) -> String {
     }
 }
 
+fn find_inference_model() -> Result<PathBuf, String> {
+    // Path relative to the crate's location in the workspace
+    let dev_path = PathBuf::from(&env::var("CARGO_MANIFEST_DIR").unwrap_or_default())
+        .join("inference_model.py");
+    if dev_path.exists() {
+        return Ok(dev_path);
+    }
+
+    // Path relative to the executable's location
+    let mut exe_path = env::current_exe().map_err(|e| e.to_string())?;
+    exe_path.pop();
+    exe_path.push("inference_model.py");
+
+    println!("Path: {:?}", exe_path);
+    if exe_path.exists() {
+        return Ok(exe_path);
+    }
+
+    Err("Failed to find inference_model.py in any known location.".to_string())
+}
+
 pub fn execute(input_text: &str) -> PyResult<String> {
     let loader = LoadingIndicator::new(custom::DARK_WHITE);
     pyo3::prepare_freethreaded_python();
-    let mut executable_path = env::current_exe()?;
-
-    executable_path.pop(); // Remove the executable name from the path
-    executable_path.push("inference_model.py"); // Directly point to `inference_model.py` at the root
+    let executable_path = find_inference_model().expect("Failed to find inference_model.py");
 
     println!("Path: {:?}", executable_path);
     loader.start(input_text);
