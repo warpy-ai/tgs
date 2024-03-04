@@ -150,3 +150,7 @@ In case of running into `torch-sys` error refer to this [solution](https://githu
 <a href="https://github.com/warpy-ai/tgs/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=warpy-ai/tgs" />
 </a>
+
+## Acknowledgements
+
+This project is a fork of the [shrs](https://github.com/MrPicklePinosaur/shrs) repository. The core functionality of the CLI architecture is derived from it. We would like to express our gratitude to the original authors for their work. The original project is licensed under Apache-2.0/MIT.

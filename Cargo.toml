@@ -29,6 +29,7 @@ tgs_welcome = { path = 'crates/tgs_welcome' }
 tgs_login = { path = 'crates/tgs_login' }
 tgs_setup = { path = 'crates/tgs_setup' }
 tgs_prompt = { path = 'crates/tgs_prompt' }
+tgs_readline = { path = 'crates/tgs_readline' }
 dirs = "5"
 colored = "2.0.0"
 rand = "0.8.5"
