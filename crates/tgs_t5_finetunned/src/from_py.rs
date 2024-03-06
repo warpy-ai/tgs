@@ -32,25 +32,49 @@ fn call_dialoger(result: String) -> String {
     }
 }
 
+fn get_environment() -> String {
+    std::env::var("APP_ENVIRONMENT").unwrap_or_else(|_| "development".to_string())
+}
+
 fn find_inference_model() -> Result<PathBuf, String> {
-    // Path relative to the crate's location in the workspace
-    let dev_path = PathBuf::from(&env::var("CARGO_MANIFEST_DIR").unwrap_or_default())
-        .join("inference_model.py");
-    if dev_path.exists() {
-        return Ok(dev_path);
+    let environment = get_environment();
+    let mut path = PathBuf::new();
+
+    match environment.as_str() {
+        "production" => {
+            println!("Running in production mode");
+            // In production, the script might be located in a specific directory
+            path.push("/path/to/production/location/inference_model.py");
+        }
+        "testing" => {
+            println!("Running in testing mode");
+            // For testing, the script might be elsewhere or named differently
+            path.push("/path/to/testing/location/inference_model_test.py");
+        }
+        _ => {
+            println!("Running in development mode");
+            // For development and default, assume it's next to the executable or in a known dev path
+            let mut exe_path = std::env::current_exe().map_err(|e| e.to_string())?;
+            exe_path.pop();
+            exe_path.push("inference_model.py");
+            if exe_path.exists() {
+                return Ok(exe_path);
+            }
+
+            // Alternatively, look for the script relative to the manifest dir (useful in development)
+            let dev_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap_or_default())
+                .join("inference_model.py");
+            if dev_path.exists() {
+                return Ok(dev_path);
+            }
+        }
     }
 
-    // Path relative to the executable's location
-    let mut exe_path = env::current_exe().map_err(|e| e.to_string())?;
-    exe_path.pop();
-    exe_path.push("inference_model.py");
-
-    println!("Path: {:?}", exe_path);
-    if exe_path.exists() {
-        return Ok(exe_path);
+    if path.exists() {
+        Ok(path)
+    } else {
+        Err("Failed to find inference_model.py in any known location.".to_string())
     }
-
-    Err("Failed to find inference_model.py in any known location.".to_string())
 }
 
 pub fn execute(input_text: &str) -> PyResult<String> {
@@ -58,15 +82,18 @@ pub fn execute(input_text: &str) -> PyResult<String> {
     pyo3::prepare_freethreaded_python();
     let executable_path = find_inference_model().expect("Failed to find inference_model.py");
 
-    println!("Path: {:?}", executable_path);
     loader.start(input_text);
+
     Python::with_gil(|py| {
         let code = fs::read_to_string(&executable_path)?;
 
+        println!(
+            "Loading inference_model.py... {}",
+            executable_path.display()
+        );
         let module = PyModule::from_code(py, &code, "inference_model.py", "inference_model")?;
 
-        println!("Module: {:?}", module);
-
+        println!("Executing inference_model.py... {}", module);
         let result: PyResult<String> = module
             .getattr("generate_answer")?
             .call1((input_text,))?
