@@ -32,49 +32,27 @@ fn call_dialoger(result: String) -> String {
     }
 }
 
-fn get_environment() -> String {
-    std::env::var("APP_ENVIRONMENT").unwrap_or_else(|_| "development".to_string())
-}
-
 fn find_inference_model() -> Result<PathBuf, String> {
-    let environment = get_environment();
-    let mut path = PathBuf::new();
+    // Attempt to find the script relative to the executable's current directory first
+    let mut exe_path = std::env::current_exe()
+        .map_err(|e| format!("Failed to get current executable path: {}", e))?;
+    exe_path.pop(); // Remove the executable name, leaving the directory
+    exe_path.push("inference_model.py"); // Try to find the script in the executable's directory
 
-    match environment.as_str() {
-        "production" => {
-            println!("Running in production mode");
-            // In production, the script might be located in a specific directory
-            path.push("/path/to/production/location/inference_model.py");
-        }
-        "testing" => {
-            println!("Running in testing mode");
-            // For testing, the script might be elsewhere or named differently
-            path.push("/path/to/testing/location/inference_model_test.py");
-        }
-        _ => {
-            println!("Running in development mode");
-            // For development and default, assume it's next to the executable or in a known dev path
-            let mut exe_path = std::env::current_exe().map_err(|e| e.to_string())?;
-            exe_path.pop();
-            exe_path.push("inference_model.py");
-            if exe_path.exists() {
-                return Ok(exe_path);
-            }
-
-            // Alternatively, look for the script relative to the manifest dir (useful in development)
-            let dev_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap_or_default())
-                .join("inference_model.py");
-            if dev_path.exists() {
-                return Ok(dev_path);
-            }
-        }
+    if exe_path.exists() {
+        return Ok(exe_path);
     }
 
-    if path.exists() {
-        Ok(path)
-    } else {
-        Err("Failed to find inference_model.py in any known location.".to_string())
+    // Fallback: Attempt to find the script in a development-specific path
+    let dev_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| ".".into()))
+        .join("path_relative_to_cargo_manifest_dir")
+        .join("inference_model.py");
+
+    if dev_path.exists() {
+        return Ok(dev_path);
     }
+
+    Err("Failed to find inference_model.py in any known location.".into())
 }
 
 pub fn execute(input_text: &str) -> PyResult<String> {
@@ -94,10 +72,14 @@ pub fn execute(input_text: &str) -> PyResult<String> {
         let module = PyModule::from_code(py, &code, "inference_model.py", "inference_model")?;
 
         println!("Executing inference_model.py... {}", module);
+
         let result: PyResult<String> = module
             .getattr("generate_answer")?
             .call1((input_text,))?
             .extract();
+
+        println!("Result: {:?}", result);
+
         loader.stop();
         Ok(call_dialoger(result?))
     })
