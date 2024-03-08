@@ -3,13 +3,14 @@ import torch
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 
 
-def load_model():
+def load_model(relative_model_path=None):
     # Get the directory where the script is located
     base_path = os.path.dirname(os.path.abspath(__file__))
 
     # The model directory is in the same parent directory as the script
     # Adjust this to the correct relative path
-    relative_model_path = "model"
+    if relative_model_path is None:
+        relative_model_path = "crates/tgs_t5_finetunned/model"
 
     # Construct the absolute path to the model directory
     model_path = os.path.join(base_path, relative_model_path)
@@ -31,8 +32,9 @@ def load_model():
     return model, tokenizer
 
 
-def generate_answer(input_text, max_length=50):
-    model, tokenizer = load_model()  # Load the model and tokenizer
+def generate_answer(input_text, relative_model_path=None, max_length=50):
+    # Load the model and tokenizer
+    model, tokenizer = load_model(relative_model_path)
 
     # Ensure the model is in evaluation mode
     model.eval()
