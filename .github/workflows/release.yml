@@ -17,6 +17,10 @@ permissions:
   contents: write
   discussions: write
 
+env:
+  CARGO_TERM_COLOR: always
+
+
 jobs:
   standard:
     name: Build-and-deploy

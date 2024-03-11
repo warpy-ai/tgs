@@ -34,7 +34,7 @@ else
     cp "target/$TARGET/release/$BIN_NAME" "$DIST_DIR/"
     cd "$DIST_DIR"
     ARCHIVE_NAME="${BIN_NAME}-${VERSION}-${TARGET}.tar.gz"
-    tar -czf "$ARCHIVE_NAME" "$BIN_NAME"
+    tar -czf "$ARCHIVE_NAME" *
 fi
 
 echo "Packaging completed: $DIST_DIR"
