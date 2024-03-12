@@ -27,11 +27,15 @@ cargo build --release --target "$TARGET" --verbose
 ARCHIVE_NAME=""
 if [ "$OS" = "windows-latest" ]; then
     cp "target/$TARGET/release/$BIN_NAME.exe" "$DIST_DIR/"
+    cp -r "target/$TARGET/release/model" "$DIST_DIR/"
+    cp "target/$TARGET/release/inference_model.py" "$DIST_DIR/"
     cd "$DIST_DIR"
     ARCHIVE_NAME="${BIN_NAME}-${VERSION}-${TARGET}.zip"
-    7z a "$ARCHIVE_NAME" "$BIN_NAME.exe"
+    7z a "$ARCHIVE_NAME" *
 else
     cp "target/$TARGET/release/$BIN_NAME" "$DIST_DIR/"
+    cp -r "target/$TARGET/release/model" "$DIST_DIR/"
+    cp "target/$TARGET/release/inference_model.py" "$DIST_DIR/"
     cd "$DIST_DIR"
     ARCHIVE_NAME="${BIN_NAME}-${VERSION}-${TARGET}.tar.gz"
     tar -czf "$ARCHIVE_NAME" *
