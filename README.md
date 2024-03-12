@@ -13,11 +13,22 @@ TGS is a conversational shell that combines the power of Rust with the intellige
 
 ## Installation
 
+You can install TGS using the following command. This script will automatically determine your OS, download the latest version of TGS, and install it:
+
 ```bash
-# Placeholder for installation commands
-git clone <repository_link>
-cd tgs
-./install.sh
+curl -sSL https://raw.githubusercontent.com/warpy-ai/tgs/main/install.sh | bash
+```
+
+To install a specific version of TGS, append the version number to the command:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/warpy-ai/tgs/main/install.sh | bash -s -- <version_number>
+```
+
+For example, to install version `v0.2.8`:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/warpy-ai/tgs/main/install.sh | bash -s -- v0.2.8
 ```
 
 ## Usage
@@ -28,7 +39,7 @@ Start TGS with the following command:
 tgs
 ```
 
-Once inside TGS, you can start conversing with your terminal:
+Once inside TGS, you can start conversing with your terminal. Here are a few examples:
 
 ```
 tgs> Create a new directory called "projects"
