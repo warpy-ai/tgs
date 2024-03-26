@@ -1,6 +1,15 @@
+
+<p align="center">
+  <img width="200" alt="TGS logo" src="https://github.com/warpy-ai/tgs/assets/11979969/1349328d-83e2-49d8-bebe-e61af6e9ae60"/>
+</p>
+
+<p align="center">
+   <img width="80" alt="TGS" src="https://img.shields.io/github/actions/workflow/status/warpy-ai/tgs/pr.yml"/>
+   <img width="100" alt="TGS" src="https://img.shields.io/github/contributors/warpy-ai/tgs"/>
+</p>
+
 # TGS (Terminal Generative Shell)
 
-![TGS Logo](https://www.warpy.io/_next/static/media/tgshell_icon.4fa45b6d.svg) <!-- If you have a logo, you can link it here -->
 
 TGS is a conversational shell that combines the power of Rust with the intelligence of GPT-based natural language processing. Designed as a spinoff of the TerminalGPT project, TGS aims to redefine the way users interact with their terminals.
 
