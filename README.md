@@ -130,7 +130,7 @@ cargo run --example sentence_embeddings
 
 ## License
 
-TGS is licensed under the [MIT License](path_to_license.md).
+TGS is licensed under the [Apache License](https://github.com/warpy-ai/tgs?tab=readme-ov-file#Apache-2.0-1-ov-file).
 
 ## Research references
 
