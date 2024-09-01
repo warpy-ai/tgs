@@ -84,6 +84,7 @@ pub fn execute(input_text: &str) -> PyResult<String> {
             .call1((input_text, base_path))?
             .extract();
 
+
         loader.stop();
         Ok(call_dialoger(result?))
     })

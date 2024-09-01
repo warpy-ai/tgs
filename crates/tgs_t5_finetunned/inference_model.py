@@ -47,4 +47,5 @@ def generate_answer(input_text, relative_model_path=None, max_length=50):
 
     # Decode the output
     answer = tokenizer.decode(output_ids, skip_special_tokens=True)
+
     return answer

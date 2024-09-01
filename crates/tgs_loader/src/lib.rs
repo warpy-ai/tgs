@@ -18,8 +18,8 @@ fn color_to_ansi(color: Color) -> String {
 pub struct LoadingIndicator {
     /// A mutex to indicate whether the loading indicator is running or not.
     is_running: Arc<Mutex<bool>>,
-
     color: Color,
+    pb: ProgressBar,
 }
 
 impl Default for LoadingIndicator {
@@ -27,6 +27,7 @@ impl Default for LoadingIndicator {
         Self {
             is_running: Arc::new(Mutex::new(false)),
             color: custom::DARK_WHITE,
+            pb: ProgressBar::new(0),
         }
     }
 }
@@ -37,6 +38,7 @@ impl LoadingIndicator {
         Self {
             is_running: Arc::new(Mutex::new(false)),
             color,
+            pb: ProgressBar::new_spinner(),
         }
     }
 
@@ -44,22 +46,21 @@ impl LoadingIndicator {
     /// It ends when `stop()` is called.
     pub fn start(&self, prompt: &str) {
         let ansi_color = color_to_ansi(self.color);
-        let pb = ProgressBar::new_spinner();
-        pb.enable_steady_tick(Duration::from_millis(120));
-        pb.set_style(
+        self.pb.enable_steady_tick(Duration::from_millis(120));
+        self.pb.set_style(
             ProgressStyle::default_spinner()
                 .tick_strings(&["🤘 ", "🤟 ", "🖖 ", "✋ ", "🤚 ", "👆 ", "👌"])
                 .template(&format!("{}{{spinner}} {{msg}}", ansi_color))
                 .expect("Error message"),
         );
         let message = format!("Generating script for: {:?}", prompt);
-        pb.set_message(message);
-        thread::sleep(Duration::from_secs(5));
-        pb.finish_with_message("Found something...");
+        self.pb.set_message(message);
+
     }
 
     /// `stop()` stops the loading indicator.
     pub fn stop(&self) {
+        self.pb.finish_with_message("Found something...");
         *self.is_running.lock().unwrap() = false;
     }
 }
