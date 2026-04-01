@@ -73,6 +73,9 @@ pub fn eval_command(
         ast::Command::Pipeline(a_cmd, b_cmd) => {
             let (mut a_procs, _a_pgid) =
                 eval_command(job_manager, a_cmd, stdin, Some(Output::CreatePipe))?;
+            if a_procs.is_empty() {
+                return Ok((vec![], None));
+            }
             let (b_procs, b_pgid) = eval_command(
                 job_manager,
                 b_cmd,
